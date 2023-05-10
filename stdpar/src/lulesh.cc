@@ -2738,14 +2738,6 @@ int main(int argc, char *argv[]) {
     DumpToVisit(*locDom, opts.numFiles, myRank, numRanks);
   }
 
-  if ((myRank == 0) && (opts.quiet == 0)) {
-    VerifyAndWriteFinalOutput(elapsed_timeG, *locDom, opts.nx, numRanks);
-  }
-
-  locDom->~Domain();
-  sycl::free(locDom, oneapi::dpl::execution::dpcpp_default.queue());
-  // delete locDom;
-
   // Use reduced max elapsed time
   double elapsed_time;
   // timeval end;
@@ -2756,6 +2748,14 @@ int main(int argc, char *argv[]) {
   elapsed_time = (end - start).count();
   double elapsed_timeG;
   elapsed_timeG = elapsed_time;
+
+  if ((myRank == 0) && (opts.quiet == 0)) {
+    VerifyAndWriteFinalOutput(elapsed_timeG, *locDom, opts.nx, numRanks);
+  }
+
+  locDom->~Domain();
+  sycl::free(locDom, oneapi::dpl::execution::dpcpp_default.queue());
+  // delete locDom;
 
   std::cout << "Elapsed time " << elapsed_time << std::endl;
 
