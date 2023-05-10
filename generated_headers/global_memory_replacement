@@ -1,0 +1,72 @@
+#ifndef STDPAR_GLOBAL_MEMORY_REPLACEMENT
+#define STDPAR_GLOBAL_MEMORY_REPLACEMENT
+
+#include <memory>
+#include <oneapi/dpl/execution>
+#include <sycl/sycl.hpp>
+
+inline void* operator new(std::size_t n)
+{
+#ifdef STDPAR_DEBUG
+    printf("Redirecting new to the USM memory, allocating %zu bytes\n", n);
+#endif
+    return sycl::malloc_shared(n, oneapi::dpl::execution::dpcpp_default.queue());
+}
+
+inline void* operator new[](std::size_t n)
+{
+#ifdef STDPAR_DEBUG
+    printf("Redirecting new[] to the USM memory, allocating %zu bytes\n", n);
+#endif
+    return sycl::malloc_shared(n, oneapi::dpl::execution::dpcpp_default.queue());
+}
+
+inline void* operator new(std::size_t n, std::align_val_t al)
+{
+#ifdef STDPAR_DEBUG
+    printf("Redirecting new with alignment to the USM memory, allocating %zu bytes\n", n);
+#endif
+    return sycl::aligned_alloc_shared(std::size_t(al), n, oneapi::dpl::execution::dpcpp_default.queue());
+}
+
+inline void* operator new[](std::size_t n, std::align_val_t al)
+{
+#ifdef STDPAR_DEBUG
+    printf("Redirecting new[] with alignment to the USM memory, allocating %zu bytes\n", n);
+#endif
+    return sycl::aligned_alloc_shared(std::size_t(al), n, oneapi::dpl::execution::dpcpp_default.queue());
+}
+
+inline void operator delete(void * p) noexcept
+{
+#ifdef STDPAR_DEBUG
+    printf("Redirecting delete to the USM memory, deallocating\n");
+#endif
+    sycl::free(p, oneapi::dpl::execution::dpcpp_default.queue());
+}
+
+inline void operator delete[](void* p) noexcept
+{
+#ifdef STDPAR_DEBUG
+    printf("Redirecting delete[] to the USM memory, deallocating\n");
+#endif
+    sycl::free(p, oneapi::dpl::execution::dpcpp_default.queue());
+}
+
+inline void operator delete(void* p, std::align_val_t) noexcept
+{
+#ifdef STDPAR_DEBUG
+    printf("Redirecting delete with alignment to the USM memory, deallocating\n");
+#endif
+    sycl::free(p, oneapi::dpl::execution::dpcpp_default.queue());
+}
+
+inline void operator delete[](void* p, std::align_val_t) noexcept
+{
+#ifdef STDPAR_DEBUG
+    printf("Redirecting delete[] with alignment to the USM memory, deallocating\n");
+#endif
+    sycl::free(p, oneapi::dpl::execution::dpcpp_default.queue());
+}
+
+#endif // STDPAR_GLOBAL_MEMORY_REPLACEMENT

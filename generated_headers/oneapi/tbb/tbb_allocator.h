@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_ONEAPI_TBB_TBB_ALLOCATOR_H
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <oneapi/tbb/tbb_allocator.h>
+
+#ifdef TOP_LEVEL_ONEAPI_TBB_TBB_ALLOCATOR_H
+#undef TOP_LEVEL_ONEAPI_TBB_TBB_ALLOCATOR_H
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_ONEAPI_TBB_TBB_ALLOCATOR_H

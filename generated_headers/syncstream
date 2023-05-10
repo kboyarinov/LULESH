@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_SYNCSTREAM
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <syncstream>
+
+#ifdef TOP_LEVEL_SYNCSTREAM
+#undef TOP_LEVEL_SYNCSTREAM
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_SYNCSTREAM

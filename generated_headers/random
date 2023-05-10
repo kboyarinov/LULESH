@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_RANDOM
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <random>
+
+#ifdef TOP_LEVEL_RANDOM
+#undef TOP_LEVEL_RANDOM
+#include <oneapi/dpl/random>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_RANDOM

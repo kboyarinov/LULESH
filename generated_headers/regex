@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_REGEX
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <regex>
+
+#ifdef TOP_LEVEL_REGEX
+#undef TOP_LEVEL_REGEX
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_REGEX

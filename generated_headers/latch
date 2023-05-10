@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_LATCH
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <latch>
+
+#ifdef TOP_LEVEL_LATCH
+#undef TOP_LEVEL_LATCH
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_LATCH

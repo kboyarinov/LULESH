@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_UTILITY
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <utility>
+
+#ifdef TOP_LEVEL_UTILITY
+#undef TOP_LEVEL_UTILITY
+#include <oneapi/dpl/utility>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_UTILITY

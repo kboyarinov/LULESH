@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_CSTDDEF
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <cstddef>
+
+#ifdef TOP_LEVEL_CSTDDEF
+#undef TOP_LEVEL_CSTDDEF
+#include <oneapi/dpl/cstddef>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_CSTDDEF

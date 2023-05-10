@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_TUPLE
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <tuple>
+
+#ifdef TOP_LEVEL_TUPLE
+#undef TOP_LEVEL_TUPLE
+#include <oneapi/dpl/tuple>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_TUPLE

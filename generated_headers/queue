@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_QUEUE
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <queue>
+
+#ifdef TOP_LEVEL_QUEUE
+#undef TOP_LEVEL_QUEUE
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_QUEUE

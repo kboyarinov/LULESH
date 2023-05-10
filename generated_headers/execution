@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_EXECUTION
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <execution>
+
+#ifdef TOP_LEVEL_EXECUTION
+#undef TOP_LEVEL_EXECUTION
+#include <oneapi/dpl/execution>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_EXECUTION

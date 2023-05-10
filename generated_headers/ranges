@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_RANGES
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <ranges>
+
+#ifdef TOP_LEVEL_RANGES
+#undef TOP_LEVEL_RANGES
+#include <oneapi/dpl/ranges>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_RANGES

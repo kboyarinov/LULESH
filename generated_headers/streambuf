@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_STREAMBUF
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <streambuf>
+
+#ifdef TOP_LEVEL_STREAMBUF
+#undef TOP_LEVEL_STREAMBUF
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_STREAMBUF

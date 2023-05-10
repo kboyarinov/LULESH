@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_TYPE_TRAITS
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <type_traits>
+
+#ifdef TOP_LEVEL_TYPE_TRAITS
+#undef TOP_LEVEL_TYPE_TRAITS
+#include <oneapi/dpl/type_traits>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_TYPE_TRAITS
