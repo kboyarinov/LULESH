@@ -2694,6 +2694,8 @@ int main(int argc, char *argv[]) {
     std::cout << "See help (-h) for more options\n\n";
   }
 
+  auto start = std::chrono::high_resolution_clock::now();
+
   // Set up the mesh and decompose. Assumes regular cubes for now
   Int_t col, row, plane, side;
   InitMeshDecomp(numRanks, myRank, &col, &row, &plane, &side);
@@ -2702,12 +2704,8 @@ int main(int argc, char *argv[]) {
   // locDom = new Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
   //                     opts.balance, opts.cost);
 
-  std::cout << "Create Domain" << std::endl;
-
   locDom = reinterpret_cast<Domain*>(sycl::malloc_shared(sizeof(Domain), oneapi::dpl::execution::dpcpp_default.queue()));
   ::new(locDom) Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg, opts.balance, opts.cost);
-
-  std::cout << "Domain created" << std::endl;
 
 #ifdef USE_CUDA
    cudaMemAdvise(locDom, sizeof(Domain), cudaMemAdviseSetReadMostly, 0);
@@ -2716,7 +2714,6 @@ int main(int argc, char *argv[]) {
   // BEGIN timestep to solution */
   // timeval start;
   // gettimeofday(&start, NULL);
-  auto start = std::chrono::high_resolution_clock::now();
   // debug to see region sizes
   //   for(Int_t i = 0; i < locDom->numReg(); i++)
   //      std::cout << "region" << i + 1<< "size" << locDom->regElemSize(i)
@@ -2735,6 +2732,20 @@ int main(int argc, char *argv[]) {
     }
   }
 
+
+  // Write out final viz file */
+  if (opts.viz) {
+    DumpToVisit(*locDom, opts.numFiles, myRank, numRanks);
+  }
+
+  if ((myRank == 0) && (opts.quiet == 0)) {
+    VerifyAndWriteFinalOutput(elapsed_timeG, *locDom, opts.nx, numRanks);
+  }
+
+  locDom->~Domain();
+  sycl::free(locDom, oneapi::dpl::execution::dpcpp_default.queue());
+  // delete locDom;
+
   // Use reduced max elapsed time
   double elapsed_time;
   // timeval end;
@@ -2746,16 +2757,7 @@ int main(int argc, char *argv[]) {
   double elapsed_timeG;
   elapsed_timeG = elapsed_time;
 
-  // Write out final viz file */
-  if (opts.viz) {
-    DumpToVisit(*locDom, opts.numFiles, myRank, numRanks);
-  }
-
-  if ((myRank == 0) && (opts.quiet == 0)) {
-    VerifyAndWriteFinalOutput(elapsed_timeG, *locDom, opts.nx, numRanks);
-  }
-
-  delete locDom;
+  std::cout << "Elapsed time " << elapsed_time << std::endl;
 
   return 0;
 }

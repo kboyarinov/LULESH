@@ -190,14 +190,14 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
 ////////////////////////////////////////////////////////////////////////////////
 Domain::~Domain()
 {
-   delete [] m_regNumList;
-   delete [] m_nodeElemStart;
-   delete [] m_nodeElemCornerList;
-   delete [] m_regElemSize;
-   for (Index_t i=0 ; i<numReg() ; ++i) {
-     delete [] m_regElemlist[i];
-   }
-   delete [] m_regElemlist;
+  //  delete [] m_regNumList;
+  //  delete [] m_nodeElemStart;
+  //  delete [] m_nodeElemCornerList;
+  //  delete [] m_regElemSize;
+  //  for (Index_t i=0 ; i<numReg() ; ++i) {
+  //    delete [] m_regElemlist[i];
+  //  }
+  //  delete [] m_regElemlist;
 
 } // End destructor
 
@@ -260,11 +260,8 @@ Domain::BuildMesh(Int_t nx, Int_t edgeNodes, Int_t edgeElems)
 void
 Domain::SetupThreadSupportStructures()
 {
-    std::cout << "SetupThreadSupport start\n";
     // set up node-centered indexing of elements
     Index_t *nodeElemCount = new Index_t[numNode()] ;
-
-    std::cout << "Allocate1 done" << std::endl;
 
     for (Index_t i=0; i<numNode(); ++i) {
       nodeElemCount[i] = 0 ;
@@ -280,8 +277,6 @@ Domain::SetupThreadSupportStructures()
     // m_nodeElemStart = new Index_t[numNode()+1] ;
     m_nodeElemStart = Allocate<Index_t>(numNode() + 1);
 
-    std::cout << "Allocate2 done" << std::endl;
-
     m_nodeElemStart[0] = 0;
 
     for (Index_t i=1; i <= numNode(); ++i) {
@@ -292,13 +287,9 @@ Domain::SetupThreadSupportStructures()
     // m_nodeElemCornerList = new Index_t[m_nodeElemStart[numNode()]];
     m_nodeElemCornerList = Allocate<Index_t>(m_nodeElemStart[numNode()]);
 
-    std::cout << "Allocate3 done" << std::endl;
-
     for (Index_t i=0; i < numNode(); ++i) {
       nodeElemCount[i] = 0;
     }
-
-    std::cout << "." << std::endl;
 
     for (Index_t i=0; i < numElem(); ++i) {
       Index_t *nl = nodelist(i) ;
@@ -311,8 +302,6 @@ Domain::SetupThreadSupportStructures()
       }
     }
 
-    std::cout << "." << std::endl;
-
     Index_t clSize = m_nodeElemStart[numNode()] ;
     for (Index_t i=0; i < clSize; ++i) {
       Index_t clv = m_nodeElemCornerList[i] ;
@@ -323,10 +312,7 @@ Domain::SetupThreadSupportStructures()
       }
     }
 
-    std::cout << "Releasing" << std::endl;
-
     delete [] nodeElemCount ;
-    std::cout << "SetupThreadSupport finish" << std::endl;
 }
 
 
@@ -361,7 +347,6 @@ Domain::SetupCommBuffers(Int_t edgeNodes)
 void
 Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
 {
-  std::cout << "CreateRegionIndexSets start" << std::endl;
    srand(0);
    Index_t myRank = 0;
    this->numReg() = nr;
@@ -467,8 +452,6 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
       Index_t regndx = regElemSize(r)++; // Note increment
       regElemlist(r,regndx) = i;
    }
-
-    std::cout << "CreateRegionIndexSets finish" << std::endl;
 }
 
 /////////////////////////////////////////////////////////////
