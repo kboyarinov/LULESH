@@ -281,7 +281,7 @@ static inline void InitStressTermsForElems(Domain &domain, Real_t *sigxx,
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElem,
+  std::for_each_n(std::execution::seq, counting_iterator(0), numElem,
   // std::for_each_n(std::execution::par, counting_iterator(0), numElem,
                   // [=, &domain](Index_t i) {
                   [=](Index_t i) {
@@ -507,7 +507,7 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), numElem,
+      std::execution::seq, counting_iterator(0), numElem,
       // std::execution::par, counting_iterator(0), numElem,
       // [=, &domain](Index_t k) {
       [=](Index_t k) {
@@ -539,7 +539,7 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numNode,
+  std::for_each_n(std::execution::seq, counting_iterator(0), numNode,
   // std::for_each_n(std::execution::par, counting_iterator(0), numNode,
                   // [=, &domain](Index_t gnode) {
                   [=](Index_t gnode) {
@@ -729,7 +729,7 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
 #endif
   Domain* dptr = &domain;
   std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), numElem,
+      std::execution::seq, counting_iterator(0), numElem,
       // std::execution::par, counting_iterator(0), numElem,
       // [=, &domain](Index_t i2) {
       [=](Index_t i2) {
@@ -911,7 +911,7 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numNode,
+  std::for_each_n(std::execution::seq, counting_iterator(0), numNode,
   // std::for_each_n(std::execution::par, counting_iterator(0), numNode,
                   // [=, &domain](Index_t gnode) {
                   [=](Index_t gnode) {
@@ -955,7 +955,7 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElem,
+  std::for_each_n(std::execution::seq, counting_iterator(0), numElem,
   // std::for_each_n(std::execution::par, counting_iterator(0), numElem,
                   // [=, &domain](Index_t i) {
                   [=](Index_t i) {
@@ -989,7 +989,7 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
 #ifdef STDPAR_DEBUG
   printf("calling std::any_of on line %u\n", __LINE__ + 2);
 #endif
-  if (std::any_of(std::execution::par_unseq, domain.v_begin(), domain.v_end(),
+  if (std::any_of(std::execution::seq, domain.v_begin(), domain.v_end(),
                   [](Real_t v) { return v < Real_t(0.0); })) {
     exit(VolumeError);
   }
@@ -1032,7 +1032,7 @@ static inline void CalcVolumeForceForElems(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::any_of on line %u\n", __LINE__ + 2);
 #endif
-    if (std::any_of(std::execution::par_unseq, determ, determ + numElem,
+    if (std::any_of(std::execution::seq, determ, determ + numElem,
                     [](Real_t value) { return value <= Real_t(0.0); })) {
       exit(VolumeError);
     }
@@ -1054,17 +1054,17 @@ static inline void CalcForceForNodes(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::fill on line %u\n", __LINE__ + 2);
 #endif
-  std::fill(std::execution::par_unseq, domain.fx_begin(), domain.fx_end(),
+  std::fill(std::execution::seq, domain.fx_begin(), domain.fx_end(),
             Real_t(0.0));
 #ifdef STDPAR_DEBUG
   printf("calling std::fill on line %u\n", __LINE__ + 2);
 #endif
-  std::fill(std::execution::par_unseq, domain.fy_begin(), domain.fy_end(),
+  std::fill(std::execution::seq, domain.fy_begin(), domain.fy_end(),
             Real_t(0.0));
   #ifdef STDPAR_DEBUG
   printf("calling std::fill on line %u\n", __LINE__ + 2);
 #endif
-  std::fill(std::execution::par_unseq, domain.fz_begin(), domain.fz_end(),
+  std::fill(std::execution::seq, domain.fz_begin(), domain.fz_end(),
             Real_t(0.0));
 
   /* Calcforce calls partial, force, hourq */
@@ -1077,19 +1077,19 @@ static inline void CalcAccelerationForNodes(Domain &domain, Index_t numNode) {
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.fx_begin(), domain.fx_end(),
+  std::transform(std::execution::seq, domain.fx_begin(), domain.fx_end(),
                  domain.nodalMass_begin(), domain.xdd_begin(),
                  [](Real_t fx, Real_t nodalMass) { return fx / nodalMass; });
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.fy_begin(), domain.fy_end(),
+  std::transform(std::execution::seq, domain.fy_begin(), domain.fy_end(),
                  domain.nodalMass_begin(), domain.ydd_begin(),
                  [](Real_t fy, Real_t nodalMass) { return fy / nodalMass; });
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.fz_begin(), domain.fz_end(),
+  std::transform(std::execution::seq, domain.fz_begin(), domain.fz_end(),
                  domain.nodalMass_begin(), domain.zdd_begin(),
                  [](Real_t fz, Real_t nodalMass) { return fz / nodalMass; });
 }
@@ -1105,7 +1105,7 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each\n");
 #endif
-    std::for_each(std::execution::par_unseq, domain.symmX_begin(),
+    std::for_each(std::execution::seq, domain.symmX_begin(),
     // std::for_each(std::execution::par, domain.symmX_begin(),
                   // domain.symmX_begin() + numNodeBC, [&domain](Index_t symmX) {
                   domain.symmX_begin() + numNodeBC, [=](Index_t symmX) {
@@ -1116,7 +1116,7 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each\n");
 #endif
-    std::for_each(std::execution::par_unseq, domain.symmY_begin(),
+    std::for_each(std::execution::seq, domain.symmY_begin(),
     // std::for_each(std::execution::par, domain.symmY_begin(),
                   // domain.symmY_begin() + numNodeBC, [&domain](Index_t symmY) {
                   //   domain.ydd(symmY) = Real_t(0.0);
@@ -1128,7 +1128,7 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each\n");
 #endif
-    std::for_each(std::execution::par_unseq, domain.symmZ_begin(),
+    std::for_each(std::execution::seq, domain.symmZ_begin(),
     // std::for_each(std::execution::par, domain.symmZ_begin(),
                   // domain.symmZ_begin() + numNodeBC, [&domain](Index_t symmZ) {
                   //   domain.zdd(symmZ) = Real_t(0.0);
@@ -1145,7 +1145,7 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.xd_begin(), domain.xd_end(),
+  std::transform(std::execution::seq, domain.xd_begin(), domain.xd_end(),
                  domain.xdd_begin(), domain.xd_begin(),
                  [=](Real_t xd, Real_t xdd) {
                    Real_t xdnew = xd + xdd * dt;
@@ -1156,7 +1156,7 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.yd_begin(), domain.yd_end(),
+  std::transform(std::execution::seq, domain.yd_begin(), domain.yd_end(),
                  domain.ydd_begin(), domain.yd_begin(),
                  [=](Real_t yd, Real_t ydd) {
                    Real_t ydnew = yd + ydd * dt;
@@ -1167,7 +1167,7 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.zd_begin(), domain.zd_end(),
+  std::transform(std::execution::seq, domain.zd_begin(), domain.zd_end(),
                  domain.zdd_begin(), domain.zd_begin(),
                  [=](Real_t zd, Real_t zdd) {
                    Real_t zdnew = zd + zdd * dt;
@@ -1184,19 +1184,19 @@ static inline void CalcPositionForNodes(Domain &domain, const Real_t dt,
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.x_begin(), domain.x_end(),
+  std::transform(std::execution::seq, domain.x_begin(), domain.x_end(),
                  domain.xd_begin(), domain.x_begin(),
                  [=](Real_t x, Real_t xd) { return x + xd * dt; });
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.y_begin(), domain.y_end(),
+  std::transform(std::execution::seq, domain.y_begin(), domain.y_end(),
                  domain.yd_begin(), domain.y_begin(),
                  [=](Real_t y, Real_t yd) { return y + yd * dt; });
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.z_begin(), domain.z_end(),
+  std::transform(std::execution::seq, domain.z_begin(), domain.z_end(),
                  domain.zd_begin(), domain.z_begin(),
                  [=](Real_t z, Real_t zd) { return z + zd * dt; });
 }
@@ -1430,7 +1430,7 @@ void CalcKinematicsForElems(Domain &domain, Real_t deltaTime, Index_t numElem) {
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), numElem,
+      std::execution::seq, counting_iterator(0), numElem,
       // std::execution::par, counting_iterator(0), numElem,
       // [=, &domain](Index_t k) {
       [=](Index_t k) {
@@ -1517,7 +1517,7 @@ static inline void CalcLagrangeElements(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-    std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElem,
+    std::for_each_n(std::execution::seq, counting_iterator(0), numElem,
     // std::for_each_n(std::execution::par, counting_iterator(0), numElem,
                     // [&domain](Index_t k) {
                     [=](Index_t k) {
@@ -1543,7 +1543,7 @@ static inline void CalcLagrangeElements(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::any_of on line %u\n", __LINE__ + 2);
 #endif
-    if (std::any_of(std::execution::par_unseq, domain.vnew_begin(), domain.vnew_end(),
+    if (std::any_of(std::execution::seq, domain.vnew_begin(), domain.vnew_end(),
                     [](Real_t vnew) { return vnew <= Real_t(0.0); })) {
       exit(VolumeError);
     }
@@ -1561,8 +1561,8 @@ static inline void CalcMonotonicQGradientsForElems(Domain &domain) {
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      // std::execution::par_unseq, counting_iterator(0), numElem, [&domain](Index_t i) {
-      std::execution::par_unseq, counting_iterator(0), numElem, [=](Index_t i) {
+      // std::execution::seq, counting_iterator(0), numElem, [&domain](Index_t i) {
+      std::execution::seq, counting_iterator(0), numElem, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), numElem, [=](Index_t i) {
         const Real_t ptiny = Real_t(1.e-36);
         Real_t ax, ay, az;
@@ -1786,7 +1786,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), domain.regElemSize(r),
+      std::execution::seq, counting_iterator(0), domain.regElemSize(r),
       // std::execution::par, counting_iterator(0), domain.regElemSize(r),
       // [=, &domain](Index_t i) {
       [=](Index_t i) {
@@ -2086,20 +2086,20 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, compression, compression + length, bvc,
+  std::transform(std::execution::seq, compression, compression + length, bvc,
                  [=](Real_t compression_i) {
                    return cls * (compression_i + Real_t(1.0));
                  });
 #ifdef STDPAR_DEBUG
   printf("calling std::fill on line %u\n", __LINE__ + 2);
 #endif
-  std::fill(std::execution::par_unseq, pbvc, pbvc + length, cls);
+  std::fill(std::execution::seq, pbvc, pbvc + length, cls);
 
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+      std::execution::seq, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         Real_t newval = bvc[i] * e_old[i];
         if (std::fabs(newval) < p_cut || vnewc[regElemList[i]] >= eosvmax) {
@@ -2128,7 +2128,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+      std::execution::seq, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         e_new[i] = e_old[i] - Real_t(0.5) * delvc[i] * (p_old[i] + q_old[i]) +
                    Real_t(0.5) * work[i];
@@ -2145,7 +2145,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+      std::execution::seq, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         Real_t vhalf = Real_t(1.) / (Real_t(1.) + compHalfStep[i]);
 
@@ -2173,7 +2173,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, e_new, e_new + length, work, e_new,
+  std::transform(std::execution::seq, e_new, e_new + length, work, e_new,
                  [=](Real_t en, Real_t w) {
                    Real_t newval = en + Real_t(0.5) * w;
                    if (std::abs(newval) < e_cut) {
@@ -2192,7 +2192,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+      std::execution::seq, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         const Real_t sixth = Real_t(1.0) / Real_t(6.0);
         Index_t ielem = regElemList[i];
@@ -2234,7 +2234,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+      std::execution::seq, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         Index_t ielem = regElemList[i];
 
@@ -2273,8 +2273,8 @@ static inline void CalcSoundSpeedForElems(Domain &domain, Real_t *vnewc,
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   std::for_each_n(
-      // std::execution::par_unseq, counting_iterator(0), len, [=, &domain](Index_t i) {
-      std::execution::par_unseq, counting_iterator(0), len, [=](Index_t i) {
+      // std::execution::seq, counting_iterator(0), len, [=, &domain](Index_t i) {
+      std::execution::seq, counting_iterator(0), len, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), len, [=](Index_t i) {
         Index_t ielem = regElemList[i];
         Real_t ssTmp = (pbvc[i] * enewc[i] +
@@ -2331,7 +2331,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-    std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+    std::for_each_n(std::execution::seq, counting_iterator(0), numElemReg,
     // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                     // [=, &domain](Index_t i) {
                     [=](Index_t i) {
@@ -2353,7 +2353,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-    std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+    std::for_each_n(std::execution::seq, counting_iterator(0), numElemReg,
     // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                     [=](Index_t i) {
                       Index_t ielem = regElemList[i];
@@ -2368,7 +2368,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-      std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+      std::for_each_n(std::execution::seq, counting_iterator(0), numElemReg,
       // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                       [=](Index_t i) {
                         Index_t ielem = regElemList[i];
@@ -2382,7 +2382,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-      std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+      std::for_each_n(std::execution::seq, counting_iterator(0), numElemReg,
       // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                       [=](Index_t i) {
                         Index_t ielem = regElemList[i];
@@ -2397,7 +2397,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 #ifdef STDPAR_DEBUG
   printf("calling std::fill on line %u\n", __LINE__ + 2);
 #endif
-    std::fill(std::execution::par_unseq, work, work + numElemReg, Real_t(0.0));
+    std::fill(std::execution::seq, work, work + numElemReg, Real_t(0.0));
     CalcEnergyForElems(p_new, e_new, q_new, bvc, pbvc, p_old, e_old, q_old,
                        compression, compHalfStep, vnewc, work, delvc, pmin,
                        p_cut, e_cut, q_cut, emin, qq_old, ql_old, rho0, eosvmax,
@@ -2408,7 +2408,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 #ifdef STDPAR_DEBUG
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+  std::for_each_n(std::execution::seq, counting_iterator(0), numElemReg,
   // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                   // [=, &domain](Index_t i) {
                   [=](Index_t i) {
@@ -2454,7 +2454,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::copy\n");
 #endif
-    std::copy(std::execution::par_unseq, domain.vnew_begin(), domain.vnew_end(),
+    std::copy(std::execution::seq, domain.vnew_begin(), domain.vnew_end(),
               vnewc);
 
     // Bound the updated relative volumes with eosvmin/max
@@ -2462,7 +2462,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-      std::transform(std::execution::par_unseq, vnewc, vnewc + numElem, vnewc,
+      std::transform(std::execution::seq, vnewc, vnewc + numElem, vnewc,
                      [=](Real_t vc) { return vc < eosvmin ? eosvmin : vc; });
     }
 
@@ -2470,7 +2470,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-      std::transform(std::execution::par_unseq, vnewc, vnewc + numElem, vnewc,
+      std::transform(std::execution::seq, vnewc, vnewc + numElem, vnewc,
                      [=](Real_t vc) { return vc > eosvmax ? eosvmax : vc; });
     }
 
@@ -2480,7 +2480,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
 #ifdef STDPAR_DEBUG
   printf("calling std::any_of on line %u\n", __LINE__ + 2);
 #endif
-    if (std::any_of(std::execution::par_unseq, domain.v_begin(), domain.v_end(),
+    if (std::any_of(std::execution::seq, domain.v_begin(), domain.v_end(),
                     [=](Real_t vc) {
                       if (eosvmin != Real_t(0.0) && vc < eosvmin) {
                         vc = eosvmin;
@@ -2521,7 +2521,7 @@ static inline void UpdateVolumesForElems(Domain &domain, Real_t v_cut,
 #ifdef STDPAR_DEBUG
   printf("calling std::transform\n");
 #endif
-  std::transform(std::execution::par_unseq, domain.vnew_begin(), domain.vnew_end(),
+  std::transform(std::execution::seq, domain.vnew_begin(), domain.vnew_end(),
                  domain.v_begin(), [v_cut](Real_t vnew) {
                    if (std::abs(vnew - Real_t(1.0)) < v_cut) {
                      vnew = Real_t(1.0);
@@ -2555,7 +2555,7 @@ static inline void CalcCourantConstraintForElems(Domain &domain, Index_t length,
 #endif
   Domain* dptr = &domain;
   dtcourant = std::transform_reduce(
-      std::execution::par_unseq, counting_iterator(0), counting_iterator(length),
+      std::execution::seq, counting_iterator(0), counting_iterator(length),
       // std::execution::par, counting_iterator(0), counting_iterator(length),
       dtcourant, [](Real_t a, Real_t b) { return a < b ? a : b; },
       [=](Index_t i) {
@@ -2593,7 +2593,7 @@ static inline void CalcHydroConstraintForElems(Domain &domain, Index_t length,
   printf("calling std::transform_reduce\n");
 #endif
   dthydro = std::transform_reduce(
-      std::execution::par_unseq, counting_iterator(0), counting_iterator(length),
+      std::execution::seq, counting_iterator(0), counting_iterator(length),
       // std::execution::par, counting_iterator(0), counting_iterator(length),
       dthydro, [](Real_t a, Real_t b) { return a < b ? a : b; },
       // [=, &domain](Index_t i) {
