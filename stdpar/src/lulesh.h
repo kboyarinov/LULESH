@@ -139,7 +139,7 @@ T *Allocate(size_t size)
    // return static_cast<T *>(malloc(sizeof(T)*size)) ;
    T* memory = static_cast<T *>(sycl::malloc_shared(sizeof(T) * size, oneapi::dpl::execution::dpcpp_default.queue()));
 #else
-   T* memory = ::operator new(sizeof(T) * size);
+   T* memory = static_cast<T *>(::operator new(sizeof(T) * size));
 #endif
    for (std::size_t i = 0; i < size; ++i) {
       ::new(memory + i) T();
