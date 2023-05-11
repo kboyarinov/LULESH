@@ -2707,7 +2707,7 @@ int main(int argc, char *argv[]) {
 #ifdef USE_USM_VECTOR
   locDom = reinterpret_cast<Domain*>(sycl::malloc_shared(sizeof(Domain), oneapi::dpl::execution::dpcpp_default.queue()));
 #else
-  locDom = ::operator new(sizeof(Domain));
+  locDom = reinterpret_cast<Domain*>(::operator new(sizeof(Domain)));
 #endif
   ::new(locDom) Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg, opts.balance, opts.cost);
 
@@ -2750,7 +2750,7 @@ int main(int argc, char *argv[]) {
   // elapsed_time = (double)(end.tv_sec - start.tv_sec) +
   //                ((double)(end.tv_usec - start.tv_usec)) / 1000000;
   // elapsed_time = (end - start).count();
-  elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+  elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
   double elapsed_timeG;
   elapsed_timeG = elapsed_time;
 
