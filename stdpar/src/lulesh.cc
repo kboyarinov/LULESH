@@ -2704,7 +2704,11 @@ int main(int argc, char *argv[]) {
   // locDom = new Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
   //                     opts.balance, opts.cost);
 
+#ifdef USE_USM_VECTOR
   locDom = reinterpret_cast<Domain*>(sycl::malloc_shared(sizeof(Domain), oneapi::dpl::execution::dpcpp_default.queue()));
+#else
+  locDom = ::operator new(sizeof(Domain));
+#endif
   ::new(locDom) Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg, opts.balance, opts.cost);
 
 #ifdef USE_CUDA
@@ -2755,7 +2759,11 @@ int main(int argc, char *argv[]) {
   }
 
   locDom->~Domain();
+#if USE_USM_VECTOR
   sycl::free(locDom, oneapi::dpl::execution::dpcpp_default.queue());
+#else
+  ::operator delete(locDom);
+#endif
   // delete locDom;
 
   std::cout << "Elapsed time " << elapsed_time << std::endl;

@@ -135,8 +135,12 @@ using DomainVector = std::vector<T>;
 template <typename T>
 T *Allocate(size_t size)
 {
+#if USE_USM_VECTOR
    // return static_cast<T *>(malloc(sizeof(T)*size)) ;
    T* memory = static_cast<T *>(sycl::malloc_shared(sizeof(T) * size, oneapi::dpl::execution::dpcpp_default.queue()));
+#else
+   T* memory = ::operator new(sizeof(T) * size);
+#endif
    for (std::size_t i = 0; i < size; ++i) {
       ::new(memory + i) T();
    }
@@ -152,7 +156,11 @@ void Release(T **ptr, std::size_t size = 0)
       for (std::size_t i = 0; i < size; ++i)
          (*ptr + i)->~T();
 
+#if USE_USM_VECTOR
       sycl::free(*ptr, oneapi::dpl::execution::dpcpp_default.queue());
+#else
+      ::operator delete(*ptr);
+#endif
       *ptr = NULL ;
    }
 }
