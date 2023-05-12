@@ -11,21 +11,24 @@ then
     exit 1
 fi
 
+GENERATED_HEADERS="/home/sdp/kboyarin/LULESH/generated_headers"
+DPL_INCLUDE="/home/sdp/kboyarin/oneDPL/include"
+
 echo "building lulesh"
 
 if [ "$STDPAR" == "ON" ]
 then
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DSTDPAR -DUSE_USM_VECTOR -I /tmp/kboyarin/LULESH/generated_headers -I /tmp/kboyarin/oneDPL/include -o lulesh.o lulesh.cc
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DUSE_USM_VECTOR -I /tmp/kboyarin/oneDPL/include -o lulesh-comm.o lulesh-comm.cc
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DUSE_USM_VECTOR -I /tmp/kboyarin/oneDPL/include -o lulesh-viz.o lulesh-viz.cc
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DUSE_USM_VECTOR -I /tmp/kboyarin/oneDPL/include -o lulesh-util.o lulesh-util.cc
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DUSE_USM_VECTOR -I /tmp/kboyarin/oneDPL/include -o lulesh-init.o lulesh-init.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DSTDPAR -DUSE_USM_VECTOR -I $GENERATED_HEADERS -I $DPL_INCLUDE -o lulesh.o lulesh.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DUSE_USM_VECTOR -I $DPL_INCLUDE -o lulesh-comm.o lulesh-comm.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DUSE_USM_VECTOR -I $DPL_INCLUDE -o lulesh-viz.o lulesh-viz.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DUSE_USM_VECTOR -I $DPL_INCLUDE -o lulesh-util.o lulesh-util.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -DUSE_USM_VECTOR -I $DPL_INCLUDE -o lulesh-init.o lulesh-init.cc
 else
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I /tmp/kboyarin/oneDPL/include -o lulesh.o lulesh.cc
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I /tmp/kboyarin/oneDPL/include -o lulesh-comm.o lulesh-comm.cc
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I /tmp/kboyarin/oneDPL/include -o lulesh-viz.o lulesh-viz.cc
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I /tmp/kboyarin/oneDPL/include -o lulesh-util.o lulesh-util.cc
-    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I /tmp/kboyarin/oneDPL/include -o lulesh-init.o lulesh-init.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh.o lulesh.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-comm.o lulesh-comm.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-viz.o lulesh-viz.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-util.o lulesh-util.cc
+    icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-init.o lulesh-init.cc
 fi
 
 echo "linking lulesh"
