@@ -1277,8 +1277,8 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
   printf("calling std::for_each\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
-  start = std::chrono::high_resolution_clock::now();
-  line = __LINE__ + 1;
+  auto start = std::chrono::high_resolution_clock::now();
+  auto line = __LINE__ + 1;
 #endif
     std::for_each(std::execution::LULESH_STDPAR_POLICY, domain.symmY_begin(),
     // std::for_each(std::execution::par, domain.symmY_begin(),
@@ -1288,8 +1288,8 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
                     dptr->ydd(symmY) = Real_t(0.0);
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  end = std::chrono::high_resolution_clock::now();
-  elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  auto end = std::chrono::high_resolution_clock::now();
+  auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each on line %u elapsed time %f\n", line, elapsed_time);
 #endif
@@ -1299,8 +1299,8 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
   printf("calling std::for_each\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
-  start = std::chrono::high_resolution_clock::now();
-  line = __LINE__ + 1;
+  auto start = std::chrono::high_resolution_clock::now();
+  auto line = __LINE__ + 1;
 #endif
     std::for_each(std::execution::LULESH_STDPAR_POLICY, domain.symmZ_begin(),
     // std::for_each(std::execution::par, domain.symmZ_begin(),
@@ -1310,8 +1310,8 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
                     dptr->zdd(symmZ) = Real_t(0.0);
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  end = std::chrono::high_resolution_clock::now();
-  elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  auto end = std::chrono::high_resolution_clock::now();
+  auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each on line %u elapsed time %f\n", line, elapsed_time);
 #endif
@@ -2853,8 +2853,8 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
-  start = std::chrono::high_resolution_clock::now();
-  line = __LINE__ + 1;
+  auto start = std::chrono::high_resolution_clock::now();
+  auto line = __LINE__ + 1;
 #endif
   std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElemReg,
   // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
@@ -2869,8 +2869,8 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                     dptr->q(ielem) = q_new[i];
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  end = std::chrono::high_resolution_clock::now();
-  elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  auto end = std::chrono::high_resolution_clock::now();
+  auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
