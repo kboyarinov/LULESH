@@ -1,19 +1,19 @@
 #!/bin/bash
 
-STDPAR = "$1"
+STDPAR="$1"
 
 if [ -z "$1" ]
 then
     echo "STDPAR not specified - ON by default"
-    STDPAR = "ON"
+    STDPAR="ON"
 fi
 
-LULESH_STDPAR_POLICY = "$2"
+LULESH_STDPAR_POLICY="$2"
 
 if [ -z LULESH_STDPAR_POLICY ]
 then
     echo "Policy not specified - par_unseq by default"
-    LULESH_STDPAR_POLICY = "par_unseq"
+    LULESH_STDPAR_POLICY="par_unseq"
 fi
 
 GENERATED_HEADERS="/tmp/kboyarin/LULESH/generated_headers"
