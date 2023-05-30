@@ -10,7 +10,7 @@ fi
 
 LULESH_STDPAR_POLICY="$2"
 
-if [ -z LULESH_STDPAR_POLICY ]
+if [ -z "$LULESH_STDPAR_POLICY" ]
 then
     echo "Policy not specified - par_unseq by default"
     LULESH_STDPAR_POLICY="par_unseq"
