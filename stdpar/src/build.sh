@@ -16,7 +16,7 @@ then
     LULESH_STDPAR_POLICY="par_unseq"
 fi
 
-DEGUG="$3"
+DEBUG="$3"
 
 if [ -z "$DEBUG" ]
 then
