@@ -16,6 +16,14 @@ then
     LULESH_STDPAR_POLICY="par_unseq"
 fi
 
+DEGUG="$3"
+
+if [ -z "$DEBUG" ]
+then
+    echo "Debug not specified - OFF by default"
+    DEBUG="OFF"
+fi
+
 GENERATED_HEADERS="/tmp/kboyarin/LULESH/generated_headers"
 DPL_INCLUDE="/tmp/kboyarin/oneDPL/include"
 
@@ -28,9 +36,12 @@ then
     LINK_FLAGS+= "-loverusm"
 fi
 
+if [ "$DEBUG" == "ON" ]
+then
+    CXX_FLAGS+=" -DSTDPAR_DEBUG"
+fi
 
-
-echo "building lulesh: GPU STDPAR = $STDPAR LULESH_STDPAR_POLICY = $LULESH_STDPAR_POLICY"
+echo "building lulesh: GPU STDPAR = $STDPAR LULESH_STDPAR_POLICY = $LULESH_STDPAR_POLICY DEBUG = $DEBUG"
 
 icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh.o lulesh.cc
 icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-comm.o lulesh-comm.cc
