@@ -173,11 +173,6 @@ Additional BSD Notice
 #include <cuda_profiler_api.h>
 #endif
 
-#ifndef LULESH_STDPAR_POLICY
-#warning "LULESH_STDPAR_POLICY is not specified - use LULESH_STDPAR_POLICY\n"
-#define LULESH_STDPAR_POLICY par_unseq
-#endif
-
 /* Work Routines */
 
 static inline void TimeIncrement(Domain &domain) {

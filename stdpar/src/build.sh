@@ -24,7 +24,7 @@ LINK_FLAGS=""
 
 if [ "$STDPAR" == "ON" ]
 then
-    CXX_FLAGS+="-DSTDPAR"
+    CXX_FLAGS+=" -DSTDPAR"
     LINK_FLAGS+= "-loverusm"
 fi
 
