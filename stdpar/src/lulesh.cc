@@ -293,7 +293,7 @@ static inline void InitStressTermsForElems(Domain &domain, Real_t *sigxx,
                     sigxx[i] = sigyy[i] = sigzz[i] = -dptr->p(i) - dptr->q(i);
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -548,7 +548,7 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
                                     &fz_elem[k * 8]);
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -583,7 +583,7 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
                     dptr->fz(gnode) = fz_tmp;
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -942,7 +942,7 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
         fz_local[7] = hgfz[7];
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -981,7 +981,7 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
                     dptr->fz(gnode) += fz_tmp;
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -1042,7 +1042,7 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
                     determ[i] = dptr->volo(i) * dptr->v(i);
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -1060,7 +1060,7 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
     exit(VolumeError);
   }
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::any_of on line %u elapsed time %f\n", line, elapsed_time);
@@ -1113,7 +1113,7 @@ static inline void CalcVolumeForceForElems(Domain &domain) {
       exit(VolumeError);
     }
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::any_of on line %u elapsed time %f\n", line, elapsed_time);
@@ -1143,7 +1143,7 @@ static inline void CalcForceForNodes(Domain &domain) {
   std::fill(std::execution::LULESH_STDPAR_POLICY, domain.fx_begin(), domain.fx_end(),
             Real_t(0.0));
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
@@ -1160,7 +1160,7 @@ static inline void CalcForceForNodes(Domain &domain) {
   std::fill(std::execution::LULESH_STDPAR_POLICY, domain.fy_begin(), domain.fy_end(),
             Real_t(0.0));
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
@@ -1177,7 +1177,7 @@ static inline void CalcForceForNodes(Domain &domain) {
   std::fill(std::execution::LULESH_STDPAR_POLICY, domain.fz_begin(), domain.fz_end(),
             Real_t(0.0));
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
@@ -1201,7 +1201,7 @@ static inline void CalcAccelerationForNodes(Domain &domain, Index_t numNode) {
                  domain.nodalMass_begin(), domain.xdd_begin(),
                  [](Real_t fx, Real_t nodalMass) { return fx / nodalMass; });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -1219,7 +1219,7 @@ static inline void CalcAccelerationForNodes(Domain &domain, Index_t numNode) {
                  domain.nodalMass_begin(), domain.ydd_begin(),
                  [](Real_t fy, Real_t nodalMass) { return fy / nodalMass; });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -1237,7 +1237,7 @@ static inline void CalcAccelerationForNodes(Domain &domain, Index_t numNode) {
                  domain.nodalMass_begin(), domain.zdd_begin(),
                  [](Real_t fz, Real_t nodalMass) { return fz / nodalMass; });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -1266,7 +1266,7 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
                     dptr->xdd(symmX) = Real_t(0.0);
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each on line %u elapsed time %f\n", line, elapsed_time);
@@ -1288,7 +1288,7 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
                     dptr->ydd(symmY) = Real_t(0.0);
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each on line %u elapsed time %f\n", line, elapsed_time);
@@ -1310,7 +1310,7 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
                     dptr->zdd(symmZ) = Real_t(0.0);
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each on line %u elapsed time %f\n", line, elapsed_time);
@@ -1338,7 +1338,7 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
                    return xdnew;
                  });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -1360,7 +1360,7 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
                    return ydnew;
                  });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -1383,7 +1383,7 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
                    return zdnew;
                  });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -1405,7 +1405,7 @@ static inline void CalcPositionForNodes(Domain &domain, const Real_t dt,
                  domain.xd_begin(), domain.x_begin(),
                  [=](Real_t x, Real_t xd) { return x + xd * dt; });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -1423,7 +1423,7 @@ static inline void CalcPositionForNodes(Domain &domain, const Real_t dt,
                  domain.yd_begin(), domain.y_begin(),
                  [=](Real_t y, Real_t yd) { return y + yd * dt; });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -1440,7 +1440,7 @@ static inline void CalcPositionForNodes(Domain &domain, const Real_t dt,
                  domain.zd_begin(), domain.z_begin(),
                  [=](Real_t z, Real_t zd) { return z + zd * dt; });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -1750,7 +1750,7 @@ void CalcKinematicsForElems(Domain &domain, Real_t deltaTime, Index_t numElem) {
         dptr->dzz(k) = D[2];
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -1800,7 +1800,7 @@ static inline void CalcLagrangeElements(Domain &domain) {
                       dptr->dzz(k) -= vdovthird;
                     });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -1820,7 +1820,7 @@ static inline void CalcLagrangeElements(Domain &domain) {
       exit(VolumeError);
     }
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::any_of on line %u elapsed time %f\n", line, elapsed_time);
@@ -2053,7 +2053,7 @@ static inline void CalcMonotonicQGradientsForElems(Domain &domain) {
         dptr->delv_eta(i) = ax * dxv + ay * dyv + az * dzv;
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2307,7 +2307,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
         dptr->ql(ielem) = qlin;
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2393,7 +2393,7 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
                    return cls * (compression_i + Real_t(1.0));
                  });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -2409,7 +2409,7 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
 #endif
   std::fill(std::execution::LULESH_STDPAR_POLICY, pbvc, pbvc + length, cls);
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
@@ -2435,7 +2435,7 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
         p_new[i] = newval;
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2472,7 +2472,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
         }
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2514,7 +2514,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
                                    Real_t(4.0) * (pHalfStep[i] + q_new[i]));
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2540,7 +2540,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
                    return newval;
                  });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -2592,7 +2592,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
         }
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2631,7 +2631,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
         }
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2673,7 +2673,7 @@ static inline void CalcSoundSpeedForElems(Domain &domain, Real_t *vnewc,
         dptr->ss(ielem) = ssTmp;
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2745,7 +2745,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                       ql_old[i] = dptr->ql(ielem);
                     });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2768,7 +2768,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                       compHalfStep[i] = Real_t(1.) / vchalf - Real_t(1.);
                     });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2793,7 +2793,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                         }
                       });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2820,7 +2820,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                         }
                       });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2837,7 +2837,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 #endif
     std::fill(std::execution::LULESH_STDPAR_POLICY, work, work + numElemReg, Real_t(0.0));
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
@@ -2869,7 +2869,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                     dptr->q(ielem) = q_new[i];
                   });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
@@ -2915,7 +2915,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
     std::copy(std::execution::LULESH_STDPAR_POLICY, domain.vnew_begin(), domain.vnew_end(),
               vnewc);
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::copy on line %u elapsed time %f\n", line, elapsed_time);
@@ -2933,7 +2933,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
       std::transform(std::execution::LULESH_STDPAR_POLICY, vnewc, vnewc + numElem, vnewc,
                      [=](Real_t vc) { return vc < eosvmin ? eosvmin : vc; });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -2951,7 +2951,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
       std::transform(std::execution::LULESH_STDPAR_POLICY, vnewc, vnewc + numElem, vnewc,
                      [=](Real_t vc) { return vc > eosvmax ? eosvmax : vc; });
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -2981,7 +2981,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
       exit(VolumeError);
     }
 #ifdef MEASURE_EACH_ALGORITHM
-  finish = std::chrono::high_resolution_clock::now();
+  end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::any_of on line %u elapsed time %f\n", line, elapsed_time);
@@ -3027,7 +3027,7 @@ static inline void UpdateVolumesForElems(Domain &domain, Real_t v_cut,
                    return vnew;
                  });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
@@ -3088,7 +3088,7 @@ static inline void CalcCourantConstraintForElems(Domain &domain, Index_t length,
         }
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform_reduce on line %u elapsed time %f\n", line, elapsed_time);
@@ -3126,7 +3126,7 @@ static inline void CalcHydroConstraintForElems(Domain &domain, Index_t length,
         }
       });
 #ifdef MEASURE_EACH_ALGORITHM
-  auto finish = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("std::transform_reduce on line %u elapsed time %f\n", line, elapsed_time);
