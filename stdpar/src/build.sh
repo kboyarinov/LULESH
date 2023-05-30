@@ -32,7 +32,7 @@ fi
 
 echo "building lulesh: GPU STDPAR = $STDPAR LULESH_STDPAR_POLICY = $LULESH_STDPAR_POLICY"
 
-icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI $CXX_FLAGS -I $DPL_INCLUDE -o lulesh.o lulesh.cc
+icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh.o lulesh.cc
 icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-comm.o lulesh-comm.cc
 icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-viz.o lulesh-viz.cc
 icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-util.o lulesh-util.cc
