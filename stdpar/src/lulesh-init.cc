@@ -190,15 +190,18 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
 ////////////////////////////////////////////////////////////////////////////////
 Domain::~Domain()
 {
-  //  delete [] m_regNumList;
-  //  delete [] m_nodeElemStart;
-  //  delete [] m_nodeElemCornerList;
-  //  delete [] m_regElemSize;
-  //  for (Index_t i=0 ; i<numReg() ; ++i) {
-  //    delete [] m_regElemlist[i];
-  //  }
-  //  delete [] m_regElemlist;
+#if USE_USM_VECTOR
 
+#else
+   delete [] m_regNumList;
+   delete [] m_nodeElemStart;
+   delete [] m_nodeElemCornerList;
+   delete [] m_regElemSize;
+   for (Index_t i=0 ; i<numReg() ; ++i) {
+     delete [] m_regElemlist[i];
+   }
+   delete [] m_regElemlist;
+#endif
 } // End destructor
 
 
