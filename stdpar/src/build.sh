@@ -32,7 +32,7 @@ LINK_FLAGS=""
 
 if [ "$STDPAR" == "ON" ]
 then
-    CXX_FLAGS+=" -DSTDPAR"
+    CXX_FLAGS+=" -DSTDPAR -I $GENERATED_HEADERS"
     LINK_FLAGS+=" -loverusm"
 fi
 
