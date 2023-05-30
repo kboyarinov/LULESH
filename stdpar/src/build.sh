@@ -33,7 +33,7 @@ LINK_FLAGS=""
 if [ "$STDPAR" == "ON" ]
 then
     CXX_FLAGS+=" -DSTDPAR"
-    LINK_FLAGS+= "-loverusm"
+    LINK_FLAGS+=" -loverusm"
 fi
 
 if [ "$DEBUG" == "ON" ]
