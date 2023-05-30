@@ -24,6 +24,14 @@ then
     DEBUG="OFF"
 fi
 
+MEASURE_EACH="$4"
+
+if [ -z "$MEASURE_EACH" ]
+then
+    echo "Measure each is not specified - OFF by default"
+    MEASURE_EACH="OFF"
+fi
+
 GENERATED_HEADERS="/tmp/kboyarin/LULESH/generated_headers"
 DPL_INCLUDE="/tmp/kboyarin/oneDPL/include"
 
@@ -41,7 +49,12 @@ then
     CXX_FLAGS+=" -DSTDPAR_DEBUG"
 fi
 
-echo "building lulesh: GPU STDPAR = $STDPAR LULESH_STDPAR_POLICY = $LULESH_STDPAR_POLICY DEBUG = $DEBUG"
+if [ "$MEASURE_EACH" == "ON" ]
+then
+    CXX_FLAGS+= " -DMEASURE_EACH_ALGORITHM"
+fi
+
+echo "building lulesh: GPU STDPAR = $STDPAR LULESH_STDPAR_POLICY = $LULESH_STDPAR_POLICY DEBUG = $DEBUG MEASURE EACH = $MEASURE_EACH"
 
 icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh.o lulesh.cc
 icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-comm.o lulesh-comm.cc
