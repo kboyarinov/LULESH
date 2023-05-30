@@ -2755,7 +2755,7 @@ int main(int argc, char *argv[]) {
   // elapsed_time = (double)(end.tv_sec - start.tv_sec) +
   //                ((double)(end.tv_usec - start.tv_usec)) / 1000000;
   // elapsed_time = (end - start).count();
-  elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+  elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
   double elapsed_timeG;
   elapsed_timeG = elapsed_time;
 
