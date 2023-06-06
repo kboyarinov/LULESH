@@ -15,8 +15,8 @@ SOURCES2.0 = \
 	lulesh-init.cc
 OBJECTS2.0 = $(SOURCES2.0:.cc=.o)
 
-CXXFLAGS = -w -fast -Mnouniform -Mfprelaxed -stdpar=gpu -std=c++11 -DUSE_MPI=0
-LDFLAGS = $(CXXFLAGS) 
+CXXFLAGS = -w -fast -Mnouniform -Mfprelaxed -stdpar=gpu -std=c++11 -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=seq
+LDFLAGS = $(CXXFLAGS)
 
 %.o: ../src/%.cc ../src/lulesh.h
 	@echo "Building $<"
@@ -34,4 +34,3 @@ run: $(LULESH_EXEC)
 clean:
 	/bin/rm -f *.o *~ $(OBJECTS) $(LULESH_EXEC)
 	/bin/rm -rf *.dSYM
-
