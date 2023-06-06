@@ -15,7 +15,7 @@ SOURCES2.0 = \
 	lulesh-init.cc
 OBJECTS2.0 = $(SOURCES2.0:.cc=.o)
 
-CXXFLAGS = -w -fast -Mnouniform -Mfprelaxed -stdpar=gpu -std=c++11 -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=par
+CXXFLAGS = -w -fast -Mnouniform -Mfprelaxed -stdpar=cpu -std=c++11 -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=par
 LDFLAGS = $(CXXFLAGS)
 
 %.o: ../src/%.cc ../src/lulesh.h
