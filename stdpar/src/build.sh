@@ -32,6 +32,14 @@ then
     MEASURE_EACH="OFF"
 fi
 
+USE_ONEDPL="$5"
+
+if [ -z "$USE_ONEDPL" ]
+then
+    echo "USE_ONEDPL is OFF by default"
+    USE_ONEDPL="OFF"
+fi
+
 GENERATED_HEADERS="/tmp/kboyarin/LULESH/generated_headers"
 DPL_INCLUDE="/tmp/kboyarin/oneDPL/include"
 
@@ -52,6 +60,11 @@ fi
 if [ "$MEASURE_EACH" == "ON" ]
 then
     CXX_FLAGS+=" -DMEASURE_EACH_ALGORITHM"
+fi
+
+if [ "$USE_ONEDPL" == "ON" ]
+then
+    CXX_FLAGS+="-DUSE_ONEDPL"
 fi
 
 echo "building lulesh: GPU STDPAR = $STDPAR LULESH_STDPAR_POLICY = $LULESH_STDPAR_POLICY DEBUG = $DEBUG MEASURE EACH = $MEASURE_EACH"

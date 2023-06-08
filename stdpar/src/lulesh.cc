@@ -173,6 +173,22 @@ Additional BSD Notice
 #include <cuda_profiler_api.h>
 #endif
 
+#define LULESH_ALGO_NAMESPACE oneapi::dpl
+
+sycl::queue global_gpu_queue{sycl::gpu_selector_v};
+auto global_gpu_policy = oneapi::dpl::execution::make_device_policy(global_gpu_queue);
+
+#define LULESH_ALGO_POLICY global_gpu_policy
+
+#warning "USE_ONEDPL is specified, LULESH_STDPAR_POLICY would be ignored"
+
+#else
+
+#define LULESH_ALGO_NAMESPACE std
+#define LULESH_ALGO_POLICY std::execution::LULESH_STDPAR_POLICY
+
+#endif
+
 /* Work Routines */
 
 static inline void TimeIncrement(Domain &domain) {
@@ -279,14 +295,14 @@ static inline void InitStressTermsForElems(Domain &domain, Real_t *sigxx,
 
   Domain* dptr = &domain;
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElem,
-  // std::for_each_n(std::execution::par, counting_iterator(0), numElem,
+  LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numElem,
+  // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numElem,
                   // [=, &domain](Index_t i) {
                   [=](Index_t i) {
                     // sigxx[i] = sigyy[i] = sigzz[i] = -domain.p(i) - domain.q(i);
@@ -296,7 +312,7 @@ static inline void InitStressTermsForElems(Domain &domain, Real_t *sigxx,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -514,14 +530,14 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
 
   Domain* dptr = &domain;
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElem,
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      LULESH_ALGO_POLICY, counting_iterator(0), numElem,
       // std::execution::par, counting_iterator(0), numElem,
       // [=, &domain](Index_t k) {
       [=](Index_t k) {
@@ -551,20 +567,20 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
   // If threaded, then we need to copy the data out of the temporary
   // arrays used above into the final forces field
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numNode,
-  // std::for_each_n(std::execution::par, counting_iterator(0), numNode,
+  LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numNode,
+  // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numNode,
                   // [=, &domain](Index_t gnode) {
                   [=](Index_t gnode) {
                     Index_t count = dptr->nodeElemCount(gnode);
@@ -586,7 +602,7 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -755,7 +771,7 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
   /*    compute the hourglass modes */
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
   Domain* dptr = &domain;
 
@@ -763,8 +779,8 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElem,
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      LULESH_ALGO_POLICY, counting_iterator(0), numElem,
       // std::execution::par, counting_iterator(0), numElem,
       // [=, &domain](Index_t i2) {
       [=](Index_t i2) {
@@ -945,19 +961,19 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
   // Collect the data from the local arrays into the final force arrays
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numNode,
-  // std::for_each_n(std::execution::par, counting_iterator(0), numNode,
+  LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numNode,
+  // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numNode,
                   // [=, &domain](Index_t gnode) {
                   [=](Index_t gnode) {
                     // Index_t count = domain.nodeElemCount(gnode);
@@ -984,7 +1000,7 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -1004,14 +1020,14 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
   /* start loop over elements */
   Domain* dptr = &domain;
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElem,
-  // std::for_each_n(std::execution::par, counting_iterator(0), numElem,
+  LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numElem,
+  // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numElem,
                   // [=, &domain](Index_t i) {
                   [=](Index_t i) {
                     Real_t x1[8], y1[8], z1[8];
@@ -1045,17 +1061,17 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::any_of on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::any_of on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  if (std::any_of(std::execution::LULESH_STDPAR_POLICY, domain.v_begin(), domain.v_end(),
+  if (LULESH_ALGO_NAMESPACE::any_of(LULESH_ALGO_POLICY, domain.v_begin(), domain.v_end(),
                   [](Real_t v) { return v < Real_t(0.0); })) {
     exit(VolumeError);
   }
@@ -1063,7 +1079,7 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::any_of on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::any_of on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
   if (hgcoef > Real_t(0.)) {
@@ -1102,13 +1118,13 @@ static inline void CalcVolumeForceForElems(Domain &domain) {
 
     // check for negative element volume
 #ifdef STDPAR_DEBUG
-  printf("calling std::any_of on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::any_of on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-    if (std::any_of(std::execution::LULESH_STDPAR_POLICY, determ, determ + numElem,
+    if (LULESH_ALGO_NAMESPACE::any_of(LULESH_ALGO_POLICY, determ, determ + numElem,
                     [](Real_t value) { return value <= Real_t(0.0); })) {
       exit(VolumeError);
     }
@@ -1116,7 +1132,7 @@ static inline void CalcVolumeForceForElems(Domain &domain) {
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::any_of on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::any_of on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
     CalcHourglassControlForElems(domain, determ, hgcoef);
@@ -1134,53 +1150,53 @@ static inline void CalcForceForNodes(Domain &domain) {
   Index_t numNode = domain.numNode();
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::fill on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::fill on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::fill(std::execution::LULESH_STDPAR_POLICY, domain.fx_begin(), domain.fx_end(),
+  LULESH_ALGO_NAMESPACE::fill(LULESH_ALGO_POLICY, domain.fx_begin(), domain.fx_end(),
             Real_t(0.0));
 #ifdef MEASURE_EACH_ALGORITHM
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::fill on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::fill on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::fill on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::fill(std::execution::LULESH_STDPAR_POLICY, domain.fy_begin(), domain.fy_end(),
+  LULESH_ALGO_NAMESPACE::fill(LULESH_ALGO_POLICY, domain.fy_begin(), domain.fy_end(),
             Real_t(0.0));
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::fill on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::fill on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::fill on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::fill(std::execution::LULESH_STDPAR_POLICY, domain.fz_begin(), domain.fz_end(),
+  LULESH_ALGO_NAMESPACE::fill(LULESH_ALGO_POLICY, domain.fz_begin(), domain.fz_end(),
             Real_t(0.0));
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::fill on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
   /* Calcforce calls partial, force, hourq */
@@ -1191,56 +1207,56 @@ static inline void CalcForceForNodes(Domain &domain) {
 
 static inline void CalcAccelerationForNodes(Domain &domain, Index_t numNode) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.fx_begin(), domain.fx_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.fx_begin(), domain.fx_end(),
                  domain.nodalMass_begin(), domain.xdd_begin(),
                  [](Real_t fx, Real_t nodalMass) { return fx / nodalMass; });
 #ifdef MEASURE_EACH_ALGORITHM
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.fy_begin(), domain.fy_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.fy_begin(), domain.fy_end(),
                  domain.nodalMass_begin(), domain.ydd_begin(),
                  [](Real_t fy, Real_t nodalMass) { return fy / nodalMass; });
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.fz_begin(), domain.fz_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.fz_begin(), domain.fz_end(),
                  domain.nodalMass_begin(), domain.zdd_begin(),
                  [](Real_t fz, Real_t nodalMass) { return fz / nodalMass; });
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -1253,14 +1269,14 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
   Domain* dptr = &domain;
   if (!domain.symmXempty()) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each\n");
+  printf("calling LULESH_ALGO_NAMESPACE::for_each\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-    std::for_each(std::execution::LULESH_STDPAR_POLICY, domain.symmX_begin(),
-    // std::for_each(std::execution::par, domain.symmX_begin(),
+    LULESH_ALGO_NAMESPACE::for_each(LULESH_ALGO_POLICY, domain.symmX_begin(),
+    // LULESH_ALGO_NAMESPACE::for_each(std::execution::par, domain.symmX_begin(),
                   // domain.symmX_begin() + numNodeBC, [&domain](Index_t symmX) {
                   domain.symmX_begin() + numNodeBC, [=](Index_t symmX) {
                     dptr->xdd(symmX) = Real_t(0.0);
@@ -1269,19 +1285,19 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each on line %u elapsed time %f\n", line, elapsed_time);
 #endif
   }
   if (!domain.symmYempty()) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each\n");
+  printf("calling LULESH_ALGO_NAMESPACE::for_each\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-    std::for_each(std::execution::LULESH_STDPAR_POLICY, domain.symmY_begin(),
-    // std::for_each(std::execution::par, domain.symmY_begin(),
+    LULESH_ALGO_NAMESPACE::for_each(LULESH_ALGO_POLICY, domain.symmY_begin(),
+    // LULESH_ALGO_NAMESPACE::for_each(std::execution::par, domain.symmY_begin(),
                   // domain.symmY_begin() + numNodeBC, [&domain](Index_t symmY) {
                   //   domain.ydd(symmY) = Real_t(0.0);
                   domain.symmY_begin() + numNodeBC, [=](Index_t symmY) {
@@ -1291,19 +1307,19 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each on line %u elapsed time %f\n", line, elapsed_time);
 #endif
   }
   if (!domain.symmZempty()) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each\n");
+  printf("calling LULESH_ALGO_NAMESPACE::for_each\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-    std::for_each(std::execution::LULESH_STDPAR_POLICY, domain.symmZ_begin(),
-    // std::for_each(std::execution::par, domain.symmZ_begin(),
+    LULESH_ALGO_NAMESPACE::for_each(LULESH_ALGO_POLICY, domain.symmZ_begin(),
+    // LULESH_ALGO_NAMESPACE::for_each(std::execution::par, domain.symmZ_begin(),
                   // domain.symmZ_begin() + numNodeBC, [&domain](Index_t symmZ) {
                   //   domain.zdd(symmZ) = Real_t(0.0);
                   domain.symmZ_begin() + numNodeBC, [=](Index_t symmZ) {
@@ -1313,7 +1329,7 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each on line %u elapsed time %f\n", line, elapsed_time);
 #endif
   }
 }
@@ -1323,13 +1339,13 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
 static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
                                         const Real_t u_cut, Index_t numNode) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.xd_begin(), domain.xd_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.xd_begin(), domain.xd_end(),
                  domain.xdd_begin(), domain.xd_begin(),
                  [=](Real_t xd, Real_t xdd) {
                    Real_t xdnew = xd + xdd * dt;
@@ -1341,17 +1357,17 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.yd_begin(), domain.yd_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.yd_begin(), domain.yd_end(),
                  domain.ydd_begin(), domain.yd_begin(),
                  [=](Real_t yd, Real_t ydd) {
                    Real_t ydnew = yd + ydd * dt;
@@ -1363,18 +1379,18 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.zd_begin(), domain.zd_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.zd_begin(), domain.zd_end(),
                  domain.zdd_begin(), domain.zd_begin(),
                  [=](Real_t zd, Real_t zdd) {
                    Real_t zdnew = zd + zdd * dt;
@@ -1386,7 +1402,7 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -1395,55 +1411,55 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
 static inline void CalcPositionForNodes(Domain &domain, const Real_t dt,
                                         Index_t numNode) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.x_begin(), domain.x_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.x_begin(), domain.x_end(),
                  domain.xd_begin(), domain.x_begin(),
                  [=](Real_t x, Real_t xd) { return x + xd * dt; });
 #ifdef MEASURE_EACH_ALGORITHM
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.y_begin(), domain.y_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.y_begin(), domain.y_end(),
                  domain.yd_begin(), domain.y_begin(),
                  [=](Real_t y, Real_t yd) { return y + yd * dt; });
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.z_begin(), domain.z_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.z_begin(), domain.z_end(),
                  domain.zd_begin(), domain.z_begin(),
                  [=](Real_t z, Real_t zd) { return z + zd * dt; });
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -1673,14 +1689,14 @@ void CalcKinematicsForElems(Domain &domain, Real_t deltaTime, Index_t numElem) {
   Domain* dptr = &domain;
   // loop over all elements
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElem,
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      LULESH_ALGO_POLICY, counting_iterator(0), numElem,
       // std::execution::par, counting_iterator(0), numElem,
       // [=, &domain](Index_t k) {
       [=](Index_t k) {
@@ -1753,7 +1769,7 @@ void CalcKinematicsForElems(Domain &domain, Real_t deltaTime, Index_t numElem) {
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -1771,14 +1787,14 @@ static inline void CalcLagrangeElements(Domain &domain) {
     Domain* dptr = &domain;
     // element loop to do some stuff not included in the elemlib function.
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-    std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElem,
-    // std::for_each_n(std::execution::par, counting_iterator(0), numElem,
+    LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numElem,
+    // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numElem,
                     // [&domain](Index_t k) {
                     [=](Index_t k) {
                       // calc strain rate and apply as constraint (only done in
@@ -1803,19 +1819,19 @@ static inline void CalcLagrangeElements(Domain &domain) {
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 
     // See if any volumes are negative, and take appropriate action.
 #ifdef STDPAR_DEBUG
-  printf("calling std::any_of on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::any_of on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-    if (std::any_of(std::execution::LULESH_STDPAR_POLICY, domain.vnew_begin(), domain.vnew_end(),
+    if (LULESH_ALGO_NAMESPACE::any_of(LULESH_ALGO_POLICY, domain.vnew_begin(), domain.vnew_end(),
                     [](Real_t vnew) { return vnew <= Real_t(0.0); })) {
       exit(VolumeError);
     }
@@ -1823,7 +1839,7 @@ static inline void CalcLagrangeElements(Domain &domain) {
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::any_of on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::any_of on line %u elapsed time %f\n", line, elapsed_time);
 #endif
     domain.DeallocateStrains();
   }
@@ -1836,15 +1852,15 @@ static inline void CalcMonotonicQGradientsForElems(Domain &domain) {
 
   Domain* dptr = &domain;
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      // std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElem, [&domain](Index_t i) {
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElem, [=](Index_t i) {
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      // LULESH_ALGO_POLICY, counting_iterator(0), numElem, [&domain](Index_t i) {
+      LULESH_ALGO_POLICY, counting_iterator(0), numElem, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), numElem, [=](Index_t i) {
         const Real_t ptiny = Real_t(1.e-36);
         Real_t ax, ay, az;
@@ -2056,7 +2072,7 @@ static inline void CalcMonotonicQGradientsForElems(Domain &domain) {
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -2071,14 +2087,14 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
 
   Domain* dptr = &domain;
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), domain.regElemSize(r),
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      LULESH_ALGO_POLICY, counting_iterator(0), domain.regElemSize(r),
       // std::execution::par, counting_iterator(0), domain.regElemSize(r),
       // [=, &domain](Index_t i) {
       [=](Index_t i) {
@@ -2310,7 +2326,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -2382,13 +2398,13 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
                                         Index_t *regElemList) {
   constexpr Real_t cls = Real_t(2.0) / Real_t(3.0);
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, compression, compression + length, bvc,
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, compression, compression + length, bvc,
                  [=](Real_t compression_i) {
                    return cls * (compression_i + Real_t(1.0));
                  });
@@ -2396,34 +2412,34 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::fill on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::fill on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::fill(std::execution::LULESH_STDPAR_POLICY, pbvc, pbvc + length, cls);
+  LULESH_ALGO_NAMESPACE::fill(LULESH_ALGO_POLICY, pbvc, pbvc + length, cls);
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::fill on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), length, [=](Index_t i) {
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      LULESH_ALGO_POLICY, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         Real_t newval = bvc[i] * e_old[i];
         if (std::fabs(newval) < p_cut || vnewc[regElemList[i]] >= eosvmax) {
@@ -2438,7 +2454,7 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -2455,14 +2471,14 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   Real_t *pHalfStep = Allocate<Real_t>(length);
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), length, [=](Index_t i) {
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      LULESH_ALGO_POLICY, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         e_new[i] = e_old[i] - Real_t(0.5) * delvc[i] * (p_old[i] + q_old[i]) +
                    Real_t(0.5) * work[i];
@@ -2475,21 +2491,21 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
   CalcPressureForElems(pHalfStep, bvc, pbvc, e_new, compHalfStep, vnewc, pmin,
                        p_cut, eosvmax, length, regElemList);
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), length, [=](Index_t i) {
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      LULESH_ALGO_POLICY, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         Real_t vhalf = Real_t(1.) / (Real_t(1.) + compHalfStep[i]);
 
@@ -2517,18 +2533,18 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, e_new, e_new + length, work, e_new,
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, e_new, e_new + length, work, e_new,
                  [=](Real_t en, Real_t w) {
                    Real_t newval = en + Real_t(0.5) * w;
                    if (std::abs(newval) < e_cut) {
@@ -2543,21 +2559,21 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
   CalcPressureForElems(p_new, bvc, pbvc, e_new, compression, vnewc, pmin, p_cut,
                        eosvmax, length, regElemList);
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), length, [=](Index_t i) {
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      LULESH_ALGO_POLICY, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         const Real_t sixth = Real_t(1.0) / Real_t(6.0);
         Index_t ielem = regElemList[i];
@@ -2595,21 +2611,21 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
   CalcPressureForElems(p_new, bvc, pbvc, e_new, compression, vnewc, pmin, p_cut,
                        eosvmax, length, regElemList);
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), length, [=](Index_t i) {
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      LULESH_ALGO_POLICY, counting_iterator(0), length, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), length, [=](Index_t i) {
         Index_t ielem = regElemList[i];
 
@@ -2634,7 +2650,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
   Release(&pHalfStep);
@@ -2651,15 +2667,15 @@ static inline void CalcSoundSpeedForElems(Domain &domain, Real_t *vnewc,
                                           Index_t len, Index_t *regElemList) {
   Domain* dptr = &domain;
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(
-      // std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), len, [=, &domain](Index_t i) {
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), len, [=](Index_t i) {
+  LULESH_ALGO_NAMESPACE::for_each_n(
+      // LULESH_ALGO_POLICY, counting_iterator(0), len, [=, &domain](Index_t i) {
+      LULESH_ALGO_POLICY, counting_iterator(0), len, [=](Index_t i) {
       // std::execution::par, counting_iterator(0), len, [=](Index_t i) {
         Index_t ielem = regElemList[i];
         Real_t ssTmp = (pbvc[i] * enewc[i] +
@@ -2676,7 +2692,7 @@ static inline void CalcSoundSpeedForElems(Domain &domain, Real_t *vnewc,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -2720,14 +2736,14 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 
   Domain* dptr = &domain;
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-    std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElemReg,
-    // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
+    LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numElemReg,
+    // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                     // [=, &domain](Index_t i) {
                     [=](Index_t i) {
                       Index_t ielem = regElemList[i];
@@ -2748,18 +2764,18 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-    std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElemReg,
-    // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
+    LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numElemReg,
+    // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                     [=](Index_t i) {
                       Index_t ielem = regElemList[i];
                       Real_t vchalf;
@@ -2771,20 +2787,20 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
     /* Check for v > eosvmax or v < eosvmin */
     if (eosvmin != Real_t(0.)) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-      std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElemReg,
-      // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
+      LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numElemReg,
+      // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                       [=](Index_t i) {
                         Index_t ielem = regElemList[i];
                         if (vnewc[ielem] <=
@@ -2796,20 +2812,20 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
     }
     if (eosvmax != Real_t(0.)) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
 
-      std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElemReg,
-      // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
+      LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numElemReg,
+      // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                       [=](Index_t i) {
                         Index_t ielem = regElemList[i];
                         if (vnewc[ielem] >=
@@ -2823,24 +2839,24 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
     }
 
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::fill on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::fill on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-    std::fill(std::execution::LULESH_STDPAR_POLICY, work, work + numElemReg, Real_t(0.0));
+    LULESH_ALGO_NAMESPACE::fill(LULESH_ALGO_POLICY, work, work + numElemReg, Real_t(0.0));
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::fill on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::fill on line %u elapsed time %f\n", line, elapsed_time);
 #endif
     CalcEnergyForElems(p_new, e_new, q_new, bvc, pbvc, p_old, e_old, q_old,
                        compression, compHalfStep, vnewc, work, delvc, pmin,
@@ -2850,14 +2866,14 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 
   Domain* dptr = &domain;
 #ifdef STDPAR_DEBUG
-  printf("calling std::for_each_n on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::for_each_n on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::for_each_n(std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), numElemReg,
-  // std::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
+  LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numElemReg,
+  // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                   // [=, &domain](Index_t i) {
                   [=](Index_t i) {
                     Index_t ielem = regElemList[i];
@@ -2872,7 +2888,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::for_each_n on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
   CalcSoundSpeedForElems(domain, vnewc, rho0, e_new, p_new, pbvc, bvc, ss4o3,
@@ -2906,55 +2922,55 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
     Real_t *vnewc = Allocate<Real_t>(numElem);
 
 #ifdef STDPAR_DEBUG
-  printf("calling std::copy\n");
+  printf("calling LULESH_ALGO_NAMESPACE::copy\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-    std::copy(std::execution::LULESH_STDPAR_POLICY, domain.vnew_begin(), domain.vnew_end(),
+    LULESH_ALGO_NAMESPACE::copy(LULESH_ALGO_POLICY, domain.vnew_begin(), domain.vnew_end(),
               vnewc);
 #ifdef MEASURE_EACH_ALGORITHM
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::copy on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::copy on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
     // Bound the updated relative volumes with eosvmin/max
     if (eosvmin != Real_t(0.)) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-      std::transform(std::execution::LULESH_STDPAR_POLICY, vnewc, vnewc + numElem, vnewc,
+      LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, vnewc, vnewc + numElem, vnewc,
                      [=](Real_t vc) { return vc < eosvmin ? eosvmin : vc; });
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
     }
 
     if (eosvmax != Real_t(0.)) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-      std::transform(std::execution::LULESH_STDPAR_POLICY, vnewc, vnewc + numElem, vnewc,
+      LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, vnewc, vnewc + numElem, vnewc,
                      [=](Real_t vc) { return vc > eosvmax ? eosvmax : vc; });
 #ifdef MEASURE_EACH_ALGORITHM
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
     }
 
@@ -2962,13 +2978,13 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
     // it's representative of something in the full code -
     // just leave it in, please
 #ifdef STDPAR_DEBUG
-  printf("calling std::any_of on line %u\n", __LINE__ + 2);
+  printf("calling LULESH_ALGO_NAMESPACE::any_of on line %u\n", __LINE__ + 2);
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   start = std::chrono::high_resolution_clock::now();
   line = __LINE__ + 1;
 #endif
-    if (std::any_of(std::execution::LULESH_STDPAR_POLICY, domain.v_begin(), domain.v_end(),
+    if (LULESH_ALGO_NAMESPACE::any_of(LULESH_ALGO_POLICY, domain.v_begin(), domain.v_end(),
                     [=](Real_t vc) {
                       if (eosvmin != Real_t(0.0) && vc < eosvmin) {
                         vc = eosvmin;
@@ -2984,7 +3000,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
   end = std::chrono::high_resolution_clock::now();
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::any_of on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::any_of on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 
     for (Int_t r = 0; r < domain.numReg(); r++) {
@@ -3013,13 +3029,13 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
 static inline void UpdateVolumesForElems(Domain &domain, Real_t v_cut,
                                          Index_t length) {
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  std::transform(std::execution::LULESH_STDPAR_POLICY, domain.vnew_begin(), domain.vnew_end(),
+  LULESH_ALGO_NAMESPACE::transform(LULESH_ALGO_POLICY, domain.vnew_begin(), domain.vnew_end(),
                  domain.v_begin(), [v_cut](Real_t vnew) {
                    if (std::abs(vnew - Real_t(1.0)) < v_cut) {
                      vnew = Real_t(1.0);
@@ -3030,7 +3046,7 @@ static inline void UpdateVolumesForElems(Domain &domain, Real_t v_cut,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -3055,15 +3071,15 @@ static inline void CalcCourantConstraintForElems(Domain &domain, Index_t length,
                                                  Real_t &dtcourant) {
   Real_t qqc2 = Real_t(64.0) * qqc * qqc;
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform_reduce\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform_reduce\n");
 #endif
   Domain* dptr = &domain;
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  dtcourant = std::transform_reduce(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), counting_iterator(length),
+  dtcourant = LULESH_ALGO_NAMESPACE::transform_reduce(
+      LULESH_ALGO_POLICY, counting_iterator(0), counting_iterator(length),
       // std::execution::par, counting_iterator(0), counting_iterator(length),
       dtcourant, [](Real_t a, Real_t b) { return a < b ? a : b; },
       [=](Index_t i) {
@@ -3091,7 +3107,7 @@ static inline void CalcCourantConstraintForElems(Domain &domain, Index_t length,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform_reduce on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform_reduce on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -3104,14 +3120,14 @@ static inline void CalcHydroConstraintForElems(Domain &domain, Index_t length,
 
   Domain* dptr = &domain;
 #ifdef STDPAR_DEBUG
-  printf("calling std::transform_reduce\n");
+  printf("calling LULESH_ALGO_NAMESPACE::transform_reduce\n");
 #endif
 #ifdef MEASURE_EACH_ALGORITHM
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-  dthydro = std::transform_reduce(
-      std::execution::LULESH_STDPAR_POLICY, counting_iterator(0), counting_iterator(length),
+  dthydro = LULESH_ALGO_NAMESPACE::transform_reduce(
+      LULESH_ALGO_POLICY, counting_iterator(0), counting_iterator(length),
       // std::execution::par, counting_iterator(0), counting_iterator(length),
       dthydro, [](Real_t a, Real_t b) { return a < b ? a : b; },
       // [=, &domain](Index_t i) {
@@ -3129,7 +3145,7 @@ static inline void CalcHydroConstraintForElems(Domain &domain, Index_t length,
   auto end = std::chrono::high_resolution_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-  printf("std::transform_reduce on line %u elapsed time %f\n", line, elapsed_time);
+  printf("LULESH_ALGO_NAMESPACE::transform_reduce on line %u elapsed time %f\n", line, elapsed_time);
 #endif
 }
 
@@ -3218,22 +3234,22 @@ int main(int argc, char *argv[]) {
     std::cout << "See help (-h) for more options\n\n";
   }
 
-  auto start = std::chrono::high_resolution_clock::now();
 
   // Set up the mesh and decompose. Assumes regular cubes for now
   Int_t col, row, plane, side;
   InitMeshDecomp(numRanks, myRank, &col, &row, &plane, &side);
 
   // Build the main data structure and initialize it
-  // locDom = new Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
-  //                     opts.balance, opts.cost);
 
 #ifdef USE_USM_VECTOR
   locDom = reinterpret_cast<Domain*>(sycl::malloc_shared(sizeof(Domain), oneapi::dpl::execution::dpcpp_default.queue()));
-#else
-  locDom = reinterpret_cast<Domain*>(::operator new(sizeof(Domain)));
-#endif
   ::new(locDom) Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg, opts.balance, opts.cost);
+#else
+  locDom = new Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
+                      opts.balance, opts.cost);
+#endif
+
+  auto start = std::chrono::high_resolution_clock::now();
 
 #ifdef USE_CUDA
    cudaMemAdvise(locDom, sizeof(Domain), cudaMemAdviseSetReadMostly, 0);
@@ -3285,10 +3301,10 @@ int main(int argc, char *argv[]) {
   locDom->~Domain();
 #if USE_USM_VECTOR
   sycl::free(locDom, oneapi::dpl::execution::dpcpp_default.queue());
-#else
   ::operator delete(locDom);
+#else
+  delete locDom;
 #endif
-  // delete locDom;
 
   std::cout << "Elapsed time " << elapsed_time << std::endl;
 
