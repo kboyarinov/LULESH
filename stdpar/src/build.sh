@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$1" == "-hg" ]
+if [ "$1" == "-h" ]
 then
     echo "Usage"
     echo "./build.sh <USE_STDPAR> <STDPAR_POLICY> <DEBUG> <MEASURE_EACH_ALGORITHM> <USE_ONEDPL> <USE_SYCL_USM>"
