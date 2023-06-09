@@ -173,6 +173,8 @@ Additional BSD Notice
 #include <cuda_profiler_api.h>
 #endif
 
+#ifdef USE_ONEDPL
+
 #define LULESH_ALGO_NAMESPACE oneapi::dpl
 
 sycl::queue global_gpu_queue{sycl::gpu_selector_v};
