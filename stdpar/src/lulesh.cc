@@ -164,15 +164,6 @@ Additional BSD Notice
 #include <omp.h>
 #endif
 
-#include "lulesh.h"
-
-#ifdef USE_CUDA
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
-#include <cuda_profiler_api.h>
-#endif
-
 #ifdef USE_ONEDPL
 
 #include <oneapi/dpl/algorithm>
@@ -196,6 +187,15 @@ auto global_gpu_policy = oneapi::dpl::execution::make_device_policy(global_gpu_q
 #define LULESH_ALGO_POLICY std::execution::LULESH_STDPAR_POLICY
 #define LULESH_SYCL_QUEUE oneapi::dpl::execution::dpcpp_default.queue()
 
+#endif
+
+#include "lulesh.h"
+
+#ifdef USE_CUDA
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
+#include <cuda_profiler_api.h>
 #endif
 
 /* Work Routines */
