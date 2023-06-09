@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$1" == "ON" ]
+if [ "$1" == "-h" ]
 then
     echo "Usage"
     echo "./build.sh <USE_STDPAR> <STDPAR_POLICY> <DEBUG> <MEASURE_EACH_ALGORITHM> <USE_ONEDPL>"
