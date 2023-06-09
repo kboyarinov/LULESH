@@ -3269,6 +3269,13 @@ int main(int argc, char *argv[]) {
   //   for(Int_t i = 0; i < locDom->numReg(); i++)
   //      std::cout << "region" << i + 1<< "size" << locDom->regElemSize(i)
   //      <<std::endl;
+
+#ifdef STDPAR_DEBUG
+  std::cout < std::boolalpha;
+  std::cout << "Should algo go? " << (locDom->time() < locDom->stoptime());
+  std::cout << " " << (locDom->cycle() < opts.its) << std::endl;
+#endif
+
   while ((locDom->time() < locDom->stoptime()) &&
          (locDom->cycle() < opts.its)) {
 #ifdef STDPAR_DEBUG
