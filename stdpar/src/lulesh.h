@@ -29,8 +29,8 @@
 
 #define LULESH_ALGO_NAMESPACE oneapi::dpl
 
-sycl::queue global_gpu_queue{sycl::gpu_selector_v};
-auto global_gpu_policy = oneapi::dpl::execution::make_device_policy(global_gpu_queue);
+inline sycl::queue global_gpu_queue{sycl::gpu_selector_v};
+inline auto global_gpu_policy = oneapi::dpl::execution::make_device_policy(global_gpu_queue);
 
 #define LULESH_ALGO_POLICY global_gpu_policy
 #define LULESH_SYCL_QUEUE global_gpu_queue
