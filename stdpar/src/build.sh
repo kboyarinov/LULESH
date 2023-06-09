@@ -66,6 +66,7 @@ DPL_INCLUDE="/tmp/kboyarin/oneDPL/include"
 
 CXX_FLAGS="-DLULESH_STDPAR_POLICY=$LULESH_STDPAR_POLICY"
 LINK_FLAGS=""
+OPT_LEVEL="3"
 
 if [ "$STDPAR" == "ON" ]
 then
@@ -75,7 +76,8 @@ fi
 
 if [ "$DEBUG" == "ON" ]
 then
-    CXX_FLAGS+=" -DSTDPAR_DEBUG"
+    CXX_FLAGS+=" -g -DSTDPAR_DEBUG"
+    OPT_LEVEL="0"
 fi
 
 if [ "$MEASURE_EACH" == "ON" ]
@@ -93,13 +95,16 @@ then
     CXX_FLAGS+=" -DUSE_USM_VECTOR"
 fi
 
+CXX_FLAGS+=" -O$OPT_LEVEL"
+LINK_FLAGS+=" -O$OPT_LEVEL"
+
 echo "building lulesh: GPU STDPAR = $STDPAR LULESH_STDPAR_POLICY = $LULESH_STDPAR_POLICY DEBUG = $DEBUG MEASURE EACH = $MEASURE_EACH"
 
-BUILD_LULESH_CC_COMMPAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh.o lulesh.cc"
-BUILD_LULESH_COMM_CC_COMMAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh-comm.o lulesh-comm.cc"
-BUILD_LULESH_VIZ_CC_COMMAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh-viz.o lulesh-viz.cc"
-BUILD_LULESH_UTIL_CC_COMMAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh-util.o lulesh-util.cc"
-BUILD_LULESH_INIT_CC_COMMAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh-init.o lulesh-init.cc"
+BUILD_LULESH_CC_COMMPAND="icpx -fsycl -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh.o lulesh.cc"
+BUILD_LULESH_COMM_CC_COMMAND="icpx -fsycl -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh-comm.o lulesh-comm.cc"
+BUILD_LULESH_VIZ_CC_COMMAND="icpx -fsycl -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh-viz.o lulesh-viz.cc"
+BUILD_LULESH_UTIL_CC_COMMAND="icpx -fsycl -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh-util.o lulesh-util.cc"
+BUILD_LULESH_INIT_CC_COMMAND="icpx -fsycl -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh-init.o lulesh-init.cc"
 
 echo $BUILD_LULESH_CC_COMMPAND
 $BUILD_LULESH_CC_COMMPAND
@@ -117,7 +122,7 @@ echo $BUILD_LULESH_VIZ_CC_COMMAND
 $BUILD_LULESH_VIZ_CC_COMMAND
 
 echo "linking lulesh"
-LINK_LULESH_COMMAND="icpx -fsycl -O3 -w -std=c++17 lulesh.o lulesh-comm.o lulesh-viz.o lulesh-util.o lulesh-init.o -o lulesh -ltbb $LINK_FLAGS"
+LINK_LULESH_COMMAND="icpx -fsycl -w -std=c++17 lulesh.o lulesh-comm.o lulesh-viz.o lulesh-util.o lulesh-init.o -o lulesh -ltbb $LINK_FLAGS"
 
 echo $LINK_LULESH_COMMAND
 $LINK_LULESH_COMMAND
