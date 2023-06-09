@@ -3249,9 +3249,15 @@ int main(int argc, char *argv[]) {
   // Build the main data structure and initialize it
 
 #ifdef USE_USM_VECTOR
+#ifdef STDPAR_DEBUG
+  std::cout << "Call sycl::malloc_shared + placement new" << std::endl;
+#endif
   locDom = reinterpret_cast<Domain*>(sycl::malloc_shared(sizeof(Domain), oneapi::dpl::execution::dpcpp_default.queue()));
   ::new(locDom) Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg, opts.balance, opts.cost);
 #else
+#ifdef STDPAR_DEBUG
+  std::cout << "Call new expression" << std::endl;
+#endif
   locDom = new Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
                       opts.balance, opts.cost);
 #endif
