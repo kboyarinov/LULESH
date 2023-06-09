@@ -3308,7 +3308,6 @@ int main(int argc, char *argv[]) {
 #if USE_USM_VECTOR
   locDom->~Domain();
   sycl::free(locDom, oneapi::dpl::execution::dpcpp_default.queue());
-  ::operator delete(locDom);
 #else
   delete locDom;
 #endif
