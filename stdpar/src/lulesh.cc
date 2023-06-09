@@ -3271,7 +3271,7 @@ int main(int argc, char *argv[]) {
   //      <<std::endl;
 
 #ifdef STDPAR_DEBUG
-  std::cout < std::boolalpha;
+  std::cout << std::boolalpha;
   std::cout << "Should algo go? " << (locDom->time() < locDom->stoptime());
   std::cout << " " << (locDom->cycle() < opts.its) << std::endl;
 #endif
