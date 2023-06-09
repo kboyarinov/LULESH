@@ -95,11 +95,29 @@ fi
 
 echo "building lulesh: GPU STDPAR = $STDPAR LULESH_STDPAR_POLICY = $LULESH_STDPAR_POLICY DEBUG = $DEBUG MEASURE EACH = $MEASURE_EACH"
 
-icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh.o lulesh.cc
-icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-comm.o lulesh-comm.cc
-icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-viz.o lulesh-viz.cc
-icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-util.o lulesh-util.cc
-icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-init.o lulesh-init.cc
+BUILD_LULESH_CC_COMMPAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 $CXX_FLAGS -I $DPL_INCLUDE -o lulesh.o lulesh.cc"
+BUILD_LULESH_COMM_CC_COMMAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-comm.o lulesh-comm.cc"
+BUILD_LULESH_VIZ_CC_COMMAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-viz.o lulesh-viz.cc"
+BUILD_LULESH_UTIL_CC_COMMAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-util.o lulesh-util.cc"
+BUILD_LULESH_INIT_CC_COMMAND="icpx -fsycl -O3 -c -w -std=c++17 -DUSE_MPI=0 -I $DPL_INCLUDE -o lulesh-init.o lulesh-init.cc"
+
+echo $BUILD_LULESH_CC_COMMPAND
+$BUILD_LULESH_CC_COMMPAND
+
+echo $BUILD_LULESH_COMM_CC_COMMAND
+$BUILD_LULESH_COMM_CC_COMMAND
+
+echo $BUILD_LULESH_VIZ_CC_COMMAND
+$BUILD_LULESH_VIZ_CC_COMMAND
+
+echo $BUILD_LULESH_UTIL_CC_COMMAND
+$BUILD_LULESH_UTIL_CC_COMMAND
+
+echo $BUILD_LULESH_VIZ_CC_COMMAND
+$BUILD_LULESH_VIZ_CC_COMMAND
 
 echo "linking lulesh"
-icpx -fsycl -O3 -w -std=c++17 lulesh.o lulesh-comm.o lulesh-viz.o lulesh-util.o lulesh-init.o -o lulesh -ltbb $LINK_FLAGS
+LINK_LULESH_COMMAND="icpx -fsycl -O3 -w -std=c++17 lulesh.o lulesh-comm.o lulesh-viz.o lulesh-util.o lulesh-init.o -o lulesh -ltbb $LINK_FLAGS"
+
+echo $LINK_LULESH_COMMAND
+$LINK_LULESH_COMMAND
