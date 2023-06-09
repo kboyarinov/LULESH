@@ -3280,6 +3280,8 @@ int main(int argc, char *argv[]) {
   std::cout << std::boolalpha;
   std::cout << "Should algo go? " << (locDom->time() < locDom->stoptime());
   std::cout << " " << (locDom->cycle() < opts.its) << std::endl;
+  std::cout << "locDom->time() " << locDom->time() << std::endl;
+  std::cout << "locDom->stoptime() " << locDom->stoptime() << std::endl;
 #endif
 
   while ((locDom->time() < locDom->stoptime()) &&
