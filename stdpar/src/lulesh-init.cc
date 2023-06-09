@@ -46,7 +46,9 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
    m_regElemSize(0),
    m_regElemlist(0)
 {
-
+#ifdef STDPAR_DEBUG
+   std::cout << "Domain constructor" << std::endl;
+#endif
    Index_t edgeElems = nx ;
    Index_t edgeNodes = edgeElems+1 ;
    this->cost() = cost;
