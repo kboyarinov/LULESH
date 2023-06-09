@@ -3271,7 +3271,9 @@ int main(int argc, char *argv[]) {
   //      <<std::endl;
   while ((locDom->time() < locDom->stoptime()) &&
          (locDom->cycle() < opts.its)) {
-
+#ifdef STDPAR_DEBUG
+    std::cout << "Begin cycle" << std::endl;
+#endif
     TimeIncrement(*locDom);
     LagrangeLeapFrog(*locDom);
 
