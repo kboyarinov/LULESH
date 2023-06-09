@@ -1,5 +1,17 @@
 #!/bin/bash
 
+if [ "$1" == "ON" ]
+then
+    echo "Usage"
+    echo "./build.sh <USE_STDPAR> <STDPAR_POLICY> <DEBUG> <MEASURE_EACH_ALGORITHM> <USE_ONEDPL>"
+    echo "    <USE_STDPAR> - ON if usage of STDPAR prototype is intended, OFF otherwise, ON by default"
+    echo "    <STDPAR_POLICY> - policy for standard parallelism, par_unseq by default"
+    echo "    <DEBUG> - ON to print debug messages, OFF otherwise, OFF by default"
+    echo "    <MEASURE_EACH_ALGORITHM> - ON to print execution time of each algorithm, OFF otherwise, OFF by default"
+    echo "    <USE_ONEDPL> - ON to use oneDPL algorithms with GPU policy, OFF otherwise, OFF by default"
+    exit 0
+fi
+
 STDPAR="$1"
 
 if [ -z "$1" ]
