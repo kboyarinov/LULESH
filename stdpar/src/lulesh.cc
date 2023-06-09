@@ -186,6 +186,7 @@ sycl::queue global_gpu_queue{sycl::gpu_selector_v};
 auto global_gpu_policy = oneapi::dpl::execution::make_device_policy(global_gpu_queue);
 
 #define LULESH_ALGO_POLICY global_gpu_policy
+#define LULESH_SYCL_QUEUE global_gpu_queue
 
 #warning "USE_ONEDPL is specified, LULESH_STDPAR_POLICY would be ignored"
 
@@ -193,6 +194,7 @@ auto global_gpu_policy = oneapi::dpl::execution::make_device_policy(global_gpu_q
 
 #define LULESH_ALGO_NAMESPACE std
 #define LULESH_ALGO_POLICY std::execution::LULESH_STDPAR_POLICY
+#define LULESH_SYCL_QUEUE oneapi::dpl::execution::dpcpp_default.queue()
 
 #endif
 
@@ -3249,15 +3251,9 @@ int main(int argc, char *argv[]) {
   // Build the main data structure and initialize it
 
 #ifdef USE_USM_VECTOR
-#ifdef STDPAR_DEBUG
-  std::cout << "Call sycl::malloc_shared + placement new" << std::endl;
-#endif
-  locDom = reinterpret_cast<Domain*>(sycl::malloc_shared(sizeof(Domain), oneapi::dpl::execution::dpcpp_default.queue()));
+  locDom = reinterpret_cast<Domain*>(sycl::malloc_shared(sizeof(Domain), LULESH_SYCL_QUEUE));
   ::new(locDom) Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg, opts.balance, opts.cost);
 #else
-#ifdef STDPAR_DEBUG
-  std::cout << "Call new expression" << std::endl;
-#endif
   locDom = new Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
                       opts.balance, opts.cost);
 #endif
@@ -3324,7 +3320,7 @@ int main(int argc, char *argv[]) {
 
 #if USE_USM_VECTOR
   locDom->~Domain();
-  sycl::free(locDom, oneapi::dpl::execution::dpcpp_default.queue());
+  sycl::free(locDom, LULESH_SYCL_QUEUE);
 #else
   delete locDom;
 #endif

@@ -137,7 +137,7 @@ T *Allocate(size_t size)
 {
 #if USE_USM_VECTOR
    // return static_cast<T *>(malloc(sizeof(T)*size)) ;
-   T* memory = static_cast<T *>(sycl::malloc_shared(sizeof(T) * size, oneapi::dpl::execution::dpcpp_default.queue()));
+   T* memory = static_cast<T *>(sycl::malloc_shared(sizeof(T) * size, LULESH_SYCL_QUEUE));
 #else
    T* memory = static_cast<T *>(::operator new(sizeof(T) * size));
 #endif
@@ -157,7 +157,7 @@ void Release(T **ptr, std::size_t size = 0)
          (*ptr + i)->~T();
 
 #if USE_USM_VECTOR
-      sycl::free(*ptr, oneapi::dpl::execution::dpcpp_default.queue());
+      sycl::free(*ptr, LULESH_SYCL_QUEUE);
 #else
       ::operator delete(*ptr);
 #endif
