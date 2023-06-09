@@ -3227,6 +3227,9 @@ int main(int argc, char *argv[]) {
 
 #ifdef USE_USM_VECTOR
   locDom = reinterpret_cast<Domain*>(sycl::malloc_shared(sizeof(Domain), LULESH_SYCL_QUEUE));
+#ifdef STDPAR_DEBUG
+  std::cout << "Calling placement new" << std::endl;
+#endif
   ::new(locDom) Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg, opts.balance, opts.cost);
 #else
   locDom = new Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
