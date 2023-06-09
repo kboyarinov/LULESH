@@ -175,6 +175,11 @@ Additional BSD Notice
 
 #ifdef USE_ONEDPL
 
+#include <oneapi/dpl/algorithm>
+#include <oneapi/dpl/execution>
+#include <oneapi/dpl/numeric>
+#include <sycl/sycl.hpp>
+
 #define LULESH_ALGO_NAMESPACE oneapi::dpl
 
 sycl::queue global_gpu_queue{sycl::gpu_selector_v};
