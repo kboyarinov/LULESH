@@ -20,6 +20,31 @@
 #include <stdlib.h>
 #include <vector>
 
+#ifdef USE_ONEDPL
+
+#include <oneapi/dpl/algorithm>
+#include <oneapi/dpl/execution>
+#include <oneapi/dpl/numeric>
+#include <sycl/sycl.hpp>
+
+#define LULESH_ALGO_NAMESPACE oneapi::dpl
+
+sycl::queue global_gpu_queue{sycl::gpu_selector_v};
+auto global_gpu_policy = oneapi::dpl::execution::make_device_policy(global_gpu_queue);
+
+#define LULESH_ALGO_POLICY global_gpu_policy
+#define LULESH_SYCL_QUEUE global_gpu_queue
+
+#warning "USE_ONEDPL is specified, LULESH_STDPAR_POLICY would be ignored"
+
+#else
+
+#define LULESH_ALGO_NAMESPACE std
+#define LULESH_ALGO_POLICY std::execution::LULESH_STDPAR_POLICY
+#define LULESH_SYCL_QUEUE oneapi::dpl::execution::dpcpp_default.queue()
+
+#endif
+
 #include <oneapi/dpl/iterator>
 #include <oneapi/dpl/execution>
 #include <sycl/sycl.hpp>
