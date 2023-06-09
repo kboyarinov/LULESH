@@ -1,14 +1,15 @@
 #!/bin/bash
 
-if [ "$1" == "-h" ]
+if [ "$1" == "-hg" ]
 then
     echo "Usage"
-    echo "./build.sh <USE_STDPAR> <STDPAR_POLICY> <DEBUG> <MEASURE_EACH_ALGORITHM> <USE_ONEDPL>"
+    echo "./build.sh <USE_STDPAR> <STDPAR_POLICY> <DEBUG> <MEASURE_EACH_ALGORITHM> <USE_ONEDPL> <USE_SYCL_USM>"
     echo "    <USE_STDPAR> - ON if usage of STDPAR prototype is intended, OFF otherwise, ON by default"
     echo "    <STDPAR_POLICY> - policy for standard parallelism, par_unseq by default"
     echo "    <DEBUG> - ON to print debug messages, OFF otherwise, OFF by default"
     echo "    <MEASURE_EACH_ALGORITHM> - ON to print execution time of each algorithm, OFF otherwise, OFF by default"
     echo "    <USE_ONEDPL> - ON to use oneDPL algorithms with GPU policy, OFF otherwise, OFF by default"
+    echo "    <USE_SYCL_USM> - ON to use manual shared memory allocation, OFF otherwise, OFF by default"
     exit 0
 fi
 
@@ -52,6 +53,14 @@ then
     USE_ONEDPL="OFF"
 fi
 
+USE_USM_VECTOR="$6"
+
+if [ -z "USE_USM_VECTOR" ]
+then
+    echo "USE_USM_VECTOR is OFF by default"
+    USE_USM_VECTOR="OFF"
+fi
+
 GENERATED_HEADERS="/tmp/kboyarin/LULESH/generated_headers"
 DPL_INCLUDE="/tmp/kboyarin/oneDPL/include"
 
@@ -77,6 +86,11 @@ fi
 if [ "$USE_ONEDPL" == "ON" ]
 then
     CXX_FLAGS+=" -DUSE_ONEDPL"
+fi
+
+if [ "$USE_USM_VECTOR" == "ON" ]
+then
+    CXX_FLAGS+=" -DUSE_USM_VECTOR"
 fi
 
 echo "building lulesh: GPU STDPAR = $STDPAR LULESH_STDPAR_POLICY = $LULESH_STDPAR_POLICY DEBUG = $DEBUG MEASURE EACH = $MEASURE_EACH"
