@@ -61,8 +61,8 @@ then
     USE_USM_VECTOR="OFF"
 fi
 
-GENERATED_HEADERS="/tmp/kboyarin/LULESH/generated_headers"
-DPL_INCLUDE="/tmp/kboyarin/oneDPL/include"
+GENERATED_HEADERS="/home/sdp/kboyarin/LULESH/generated_headers"
+DPL_INCLUDE="/home/sdp/kboyarin/oneDPL/include"
 
 CXX_FLAGS="-DLULESH_STDPAR_POLICY=$LULESH_STDPAR_POLICY"
 LINK_FLAGS=""
