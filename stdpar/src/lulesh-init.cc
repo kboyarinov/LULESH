@@ -203,14 +203,14 @@ Domain::~Domain()
 #if USE_USM_VECTOR
 
 #else
-  //  delete [] m_regNumList;
-  //  delete [] m_nodeElemStart;
-  //  delete [] m_nodeElemCornerList;
-  //  delete [] m_regElemSize;
-  //  for (Index_t i=0 ; i<numReg() ; ++i) {
-  //    delete [] m_regElemlist[i];
-  //  }
-  //  delete [] m_regElemlist;
+   delete [] m_regNumList;
+   delete [] m_nodeElemStart;
+   delete [] m_nodeElemCornerList;
+   delete [] m_regElemSize;
+   for (Index_t i=0 ; i<numReg() ; ++i) {
+     delete [] m_regElemlist[i];
+   }
+   delete [] m_regElemlist;
 #endif
 } // End destructor
 
@@ -287,8 +287,11 @@ Domain::SetupThreadSupportStructures()
       }
     }
 
-    // m_nodeElemStart = new Index_t[numNode()+1] ;
+#if USE_USM_VECTOR
     m_nodeElemStart = Allocate<Index_t>(numNode() + 1);
+#else
+    m_nodeElemStart = new Index_t[numNode()+1] ;
+#endif
 
     m_nodeElemStart[0] = 0;
 
@@ -297,8 +300,11 @@ Domain::SetupThreadSupportStructures()
 	m_nodeElemStart[i-1] + nodeElemCount[i-1] ;
     }
 
-    // m_nodeElemCornerList = new Index_t[m_nodeElemStart[numNode()]];
+#if USE_USM_VECTOR
     m_nodeElemCornerList = Allocate<Index_t>(m_nodeElemStart[numNode()]);
+#else
+    m_nodeElemCornerList = new Index_t[m_nodeElemStart[numNode()]];
+#endif
 
     for (Index_t i=0; i < numNode(); ++i) {
       nodeElemCount[i] = 0;
@@ -363,10 +369,13 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
    srand(0);
    Index_t myRank = 0;
    this->numReg() = nr;
-  //  m_regElemSize = new Index_t[numReg()];
+#if USE_USM_VECTOR
   m_regElemSize = Allocate<Index_t>(numReg());
-  //  m_regElemlist = new Index_t*[numReg()];
   m_regElemlist = Allocate<Index_t*>(numReg());
+#else
+   m_regElemSize = new Index_t[numReg()];
+   m_regElemlist = new Index_t*[numReg()];
+#endif
    Index_t nextIndex = 0;
    //if we only have one region just fill it
    // Fill out the regNumList with material numbers, which are always
@@ -387,8 +396,11 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
       Index_t elements;
       Index_t runto = 0;
       Int_t costDenominator = 0;
+#if USE_USM_VECTOR
+      Int_t* regBinEnd = Allocate<Int_t>(numReg());
+#else
       Int_t* regBinEnd = new Int_t[numReg()];
-      // Int_t* regBinEnd = Allocate<Int_t>(numReg());
+#endif
 
       //Determine the relative weights of all the regions.  This is based off the -b flag.  Balance is the value passed into b.
       for (Index_t i=0 ; i<numReg() ; ++i) {
@@ -445,7 +457,11 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
 	 lastReg = regionNum;
       }
 
+#if USE_USM_VECTOR
+
+#else
       delete [] regBinEnd;
+#endif
    }
    // Convert regNumList to region index sets
    // First, count size of each region
@@ -455,8 +471,11 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
    }
    // Second, allocate each region index set
    for (Index_t i=0 ; i<numReg() ; ++i) {
-      // m_regElemlist[i] = new Index_t[regElemSize(i)];
+#if USE_USM_VECTOR
       m_regElemlist[i] = Allocate<Index_t>(regElemSize(i));
+#else
+      m_regElemlist[i] = new Index_t[regElemSize(i)];
+#endif
       regElemSize(i) = 0;
    }
    // Third, fill index sets
