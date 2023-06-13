@@ -64,7 +64,7 @@ fi
 GENERATED_HEADERS="/home/sdp/kboyarin/LULESH/generated_headers"
 DPL_INCLUDE="/home/sdp/kboyarin/oneDPL/include"
 
-CXX_FLAGS="-DLULESH_STDPAR_POLICY=$LULESH_STDPAR_POLICY"
+CXX_FLAGS="-DLULESH_STDPAR_POLICY=$LULESH_STDPAR_POLICY -g -DNDEBUG -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast"
 LINK_FLAGS=""
 OPT_LEVEL="3"
 
