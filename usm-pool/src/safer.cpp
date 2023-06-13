@@ -27,11 +27,13 @@ constexpr size_t OFFSET = 64;
 
 void *raw_alloc(std::intptr_t pool_id, std::size_t &bytes)
 {
+    printf("Call raw_alloc\n");
     return sycl::aligned_alloc_shared(64, bytes, dpcpp_default_queue);
 }
 
 int raw_free(std::intptr_t pool_id, void* raw_ptr, std::size_t raw_bytes)
 {
+    printf("Call raw_free\n");
     sycl::detail::code_location empty;
     // leak memory, if dpcpp_default_queue expired,
     // because have no other choice
@@ -42,7 +44,7 @@ int raw_free(std::intptr_t pool_id, void* raw_ptr, std::size_t raw_bytes)
 
 struct MemProvider {
     rml::MemoryPool *pool;
-    
+
     MemProvider() {
         rml::MemPoolPolicy policy{raw_alloc, raw_free, 0, /*fixedPool=*/false,
             /*keepAllMemory=*/false};
@@ -68,7 +70,7 @@ void *safer_aligned_malloc(size_t size, size_t alignment, void *original_malloc)
     RecursiveMallocCallProtector scoped;
     bool use_original = !(dpcpp_default_queue.impl
         && dpcpp_default_queue.impl.use_count());
-    
+
     void *res = use_original?
             call_orig_malloc(size + OFFSET, alignment, original_malloc)
         : rml::pool_aligned_malloc(mem_provider.pool, size + OFFSET, alignment);
