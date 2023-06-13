@@ -35,8 +35,6 @@ inline auto global_gpu_policy = oneapi::dpl::execution::make_device_policy(globa
 #define LULESH_ALGO_POLICY global_gpu_policy
 #define LULESH_SYCL_QUEUE global_gpu_queue
 
-#warning "USE_ONEDPL is specified, LULESH_STDPAR_POLICY would be ignored"
-
 #else
 
 #define LULESH_ALGO_NAMESPACE std
