@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 project (LULESH)
+find_package(TBB REQUIRED)
 
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_COMPILER icpx)
@@ -33,7 +34,7 @@ if(NOT DEFINED LULESH_USE_ITERATORS)
     set(LULESH_USE_ITERATORS OFF)
 endif()
 
-target_link_libraries(tbb)
+target_link_libraries(TBB::tbb)
 add_compile_options(-fsycl -w -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=${LULESH_STDPAR_POLICY} -fsycl-unnamed-lambda
 -cl-mad-enable -ffp-contract=fast)
 add_link_options(-fsycl -w)
