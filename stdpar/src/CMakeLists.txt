@@ -33,7 +33,10 @@ if(NOT DEFINED LULESH_USE_ITERATORS)
     set(LULESH_USE_ITERATORS OFF)
 endif()
 
-add_compile_options(-fsycl -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=${LULESH_STDPAR_POLICY} -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast)
+target_link_libraries(tbb)
+add_compile_options(-fsycl -w -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=${LULESH_STDPAR_POLICY} -fsycl-unnamed-lambda
+-cl-mad-enable -ffp-contract=fast)
+add_link_options(-fsycl -w)
 
 if(ENABLE_STDPAR_REDIRECT)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../generated_headers)
