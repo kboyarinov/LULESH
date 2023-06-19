@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.8)
 project (LULESH)
 
 set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_COMPILER icpx)
 
 if(NOT DEFINED ENABLE_STDPAR_REDIRECT)
     set(ENABLE_STDPAR_REDIRECT ON)
