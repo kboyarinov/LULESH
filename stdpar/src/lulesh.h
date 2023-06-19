@@ -241,9 +241,15 @@ class Domain {
       m_ydd.resize(numNode);
       m_zdd.resize(numNode);
 
+#ifdef STDPAR_DEBUG
+      std::cout << "Start resizing forces" << std::endl;
+#endif
       m_fx.resize(numNode);  // forces
       m_fy.resize(numNode);
       m_fz.resize(numNode);
+#ifdef STDPAR_DEBUG
+      std::cout << "Finish resizing forces" << std::endl;
+#endif
 
       m_nodalMass.resize(numNode);  // mass
    }
@@ -438,6 +444,7 @@ class Domain {
    Index_t *nodeElemCornerList(Index_t idx)
    { return &m_nodeElemCornerList[m_nodeElemStart[idx]] ; }
 
+#ifndef USE_ITERATORS
    Real_t* x_begin() { return m_x.data(); }
    Real_t* x_end() { return m_x.data() + m_x.size(); }
    Real_t* y_begin() { return m_y.data(); }
@@ -471,41 +478,41 @@ class Domain {
    Real_t* vnew_begin() { return m_vnew.data(); }
    Real_t* vnew_end() { return m_vnew.data() + m_vnew.size(); }
    Real_t* nodalMass_begin() { return m_nodalMass.data(); }
-
-   // auto x_begin() { return m_x.begin(); }
-   // auto x_end() { return m_x.end(); }
-   // auto y_begin() { return m_y.begin(); }
-   // auto y_end() { return m_y.end(); }
-   // auto z_begin() { return m_z.begin(); }
-   // auto z_end() { return m_z.end(); }
-   // auto xd_begin() { return m_xd.begin(); }
-   // auto xd_end() { return m_xd.end(); }
-   // auto yd_begin() { return m_yd.begin(); }
-   // auto yd_end() { return m_yd.end(); }
-   // auto zd_begin() { return m_zd.begin(); }
-   // auto zd_end() { return m_zd.end(); }
-   // auto xdd_begin() { return m_xdd.begin(); }
-   // auto ydd_begin() { return m_ydd.begin(); }
-   // auto zdd_begin() { return m_zdd.begin(); }
-   // auto fx_begin() { return m_fx.begin(); }
-   // auto fx_end() { return m_fx.end(); }
-   // auto fy_begin() { return m_fy.begin(); }
-   // auto fy_end() { return m_fy.end(); }
-   // auto fz_begin() { return m_fz.begin(); }
-   // auto fz_end() { return m_fz.end(); }
-   // auto symmX_begin() { return m_symmX.begin(); }
-   // auto symmY_begin() { return m_symmY.begin(); }
-   // auto symmZ_begin() { return m_symmZ.begin(); }
-   // auto p_begin() { return m_p.begin(); }
-   // auto p_end() { return m_p.end(); }
-   // auto q_begin() { return m_q.begin(); }
-   // auto q_end() { return m_q.end(); }
-   // auto v_begin() { return m_v.begin(); }
-   // auto v_end() { return m_v.end(); }
-   // auto vnew_begin() { return m_vnew.begin(); }
-   // auto vnew_end() { return m_vnew.end(); }
-   // auto nodalMass_begin() { return m_nodalMass.begin(); }
-
+#else
+   auto x_begin() { return m_x.begin(); }
+   auto x_end() { return m_x.end(); }
+   auto y_begin() { return m_y.begin(); }
+   auto y_end() { return m_y.end(); }
+   auto z_begin() { return m_z.begin(); }
+   auto z_end() { return m_z.end(); }
+   auto xd_begin() { return m_xd.begin(); }
+   auto xd_end() { return m_xd.end(); }
+   auto yd_begin() { return m_yd.begin(); }
+   auto yd_end() { return m_yd.end(); }
+   auto zd_begin() { return m_zd.begin(); }
+   auto zd_end() { return m_zd.end(); }
+   auto xdd_begin() { return m_xdd.begin(); }
+   auto ydd_begin() { return m_ydd.begin(); }
+   auto zdd_begin() { return m_zdd.begin(); }
+   auto fx_begin() { return m_fx.begin(); }
+   auto fx_end() { return m_fx.end(); }
+   auto fy_begin() { return m_fy.begin(); }
+   auto fy_end() { return m_fy.end(); }
+   auto fz_begin() { return m_fz.begin(); }
+   auto fz_end() { return m_fz.end(); }
+   auto symmX_begin() { return m_symmX.begin(); }
+   auto symmY_begin() { return m_symmY.begin(); }
+   auto symmZ_begin() { return m_symmZ.begin(); }
+   auto p_begin() { return m_p.begin(); }
+   auto p_end() { return m_p.end(); }
+   auto q_begin() { return m_q.begin(); }
+   auto q_end() { return m_q.end(); }
+   auto v_begin() { return m_v.begin(); }
+   auto v_end() { return m_v.end(); }
+   auto vnew_begin() { return m_vnew.begin(); }
+   auto vnew_end() { return m_vnew.end(); }
+   auto nodalMass_begin() { return m_nodalMass.begin(); }
+#endif
    // Parameters
 
    // Cutoffs

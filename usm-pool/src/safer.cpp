@@ -27,13 +27,12 @@ constexpr size_t OFFSET = 64;
 
 void *raw_alloc(std::intptr_t pool_id, std::size_t &bytes)
 {
-    printf("Call raw_alloc\n");
+    std::cout << "Call raw_alloc for " << bytes << " bytes" << std::endl;
     return sycl::aligned_alloc_shared(64, bytes, dpcpp_default_queue);
 }
 
 int raw_free(std::intptr_t pool_id, void* raw_ptr, std::size_t raw_bytes)
 {
-    printf("Call raw_free\n");
     sycl::detail::code_location empty;
     // leak memory, if dpcpp_default_queue expired,
     // because have no other choice

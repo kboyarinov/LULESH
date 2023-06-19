@@ -74,7 +74,7 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
    m_numNode = edgeNodes*edgeNodes*edgeNodes ;
 
 #ifdef USE_USM_VECTOR
-   m_regNumList = reinterpret_cast<Index_t*>(sycl::malloc_shared(sizeof(Index_t) * numElem()), LULESH_SYCL_QUEUE);
+   m_regNumList = reinterpret_cast<Index_t*>(sycl::malloc_shared(sizeof(Index_t) * numElem(), LULESH_SYCL_QUEUE));
 
    for (std::size_t i = 0; i < numElem(); ++i) {
     ::new(m_regNumList + i) Index_t();

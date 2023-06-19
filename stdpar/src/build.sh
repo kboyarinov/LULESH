@@ -55,14 +55,22 @@ fi
 
 USE_USM_VECTOR="$6"
 
-if [ -z "USE_USM_VECTOR" ]
+if [ -z "$USE_USM_VECTOR" ]
 then
     echo "USE_USM_VECTOR is OFF by default"
     USE_USM_VECTOR="OFF"
 fi
 
-GENERATED_HEADERS="/home/sdp/kboyarin/LULESH/generated_headers"
-DPL_INCLUDE="/home/sdp/kboyarin/oneDPL/include"
+USE_ITERATORS="$7"
+
+if [ -z "$USE_ITERATORS" ]
+then
+    echo "USE_IRATERATORS is OFF by default"
+    USE_ITERATORS="OFF"
+fi
+
+GENERATED_HEADERS="/mnt/c/git/kboyarinov/LULESH/generated_headers"
+DPL_INCLUDE="/mnt/c/git/kboyarinov/oneDPL/include"
 
 CXX_FLAGS="-DLULESH_STDPAR_POLICY=$LULESH_STDPAR_POLICY -g -DNDEBUG -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast"
 LINK_FLAGS=""
@@ -71,7 +79,10 @@ OPT_LEVEL="3"
 if [ "$STDPAR" == "ON" ]
 then
     CXX_FLAGS+=" -DSTDPAR -I $GENERATED_HEADERS"
-    LINK_FLAGS+=" -loverusm"
+    if [ "$USE_USM_VECTOR" == "OFF" ]
+    then
+        LINK_FLAGS+=" -loverusm"
+    fi
 fi
 
 if [ "$DEBUG" == "ON" ]
@@ -93,6 +104,11 @@ fi
 if [ "$USE_USM_VECTOR" == "ON" ]
 then
     CXX_FLAGS+=" -DUSE_USM_VECTOR"
+fi
+
+if [ "$USE_ITERATORS" == "ON" ]
+then
+    CXX_FLAGS+=" -DUSE_ITERATORS"
 fi
 
 CXX_FLAGS+=" -O$OPT_LEVEL"
@@ -118,8 +134,8 @@ $BUILD_LULESH_VIZ_CC_COMMAND
 echo $BUILD_LULESH_UTIL_CC_COMMAND
 $BUILD_LULESH_UTIL_CC_COMMAND
 
-echo $BUILD_LULESH_VIZ_CC_COMMAND
-$BUILD_LULESH_VIZ_CC_COMMAND
+echo $BUILD_LULESH_INIT_CC_COMMAND
+$BUILD_LULESH_INIT_CC_COMMAND
 
 echo "linking lulesh"
 LINK_LULESH_COMMAND="icpx -fsycl -w -std=c++17 lulesh.o lulesh-comm.o lulesh-viz.o lulesh-util.o lulesh-init.o -o lulesh -ltbb $LINK_FLAGS"
