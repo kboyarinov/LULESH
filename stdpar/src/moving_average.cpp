@@ -9,7 +9,7 @@
 
 int main() {
     std::mt19937 random_generator(42);
-    std::size_t n = 30000000;
+    std::size_t n = 100000000;
     std::size_t average = 1000;
 
     using T = float;
