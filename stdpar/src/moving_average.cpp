@@ -1,6 +1,7 @@
 #include <random>
 #include <vector>
 #include <chrono>
+#include <iostream>
 
 #include <algorithm>
 #include <execution>
@@ -39,6 +40,9 @@ int main() {
         auto finish = std::chrono::high_resolution_clock::now();
         times.emplace_back(std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count());
     }
+
+    std::sort(times.begin(), times.end());
+    std::cout << "Elapsed time: " << times[n / 2] << " ms" << std::endl;
 
     for (std::size_t i = 0; i < n; ++i) {
         (data_from + i)->~T();
