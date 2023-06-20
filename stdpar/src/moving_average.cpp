@@ -25,7 +25,7 @@ int main() {
     std::size_t n_times = 11;
     times.reserve(n_times);
 
-    for (std::size_t i = 0; i < n; ++i) {
+    for (std::size_t i = 0; i < n_times; ++i) {
         std::vector<T> tmp(n);
 
         auto start = std::chrono::high_resolution_clock::now();
