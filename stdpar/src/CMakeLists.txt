@@ -39,7 +39,7 @@ add_link_options(-fsycl -w -ltbb)
 
 if(ENABLE_STDPAR_REDIRECT)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../generated_headers)
-    add_compile_options(-fsycl-targets=spir64_gen -Xs "-device pvc" -DSTDPAR -fsycl-unnamed-lambda
+    add_compile_options(-DSTDPAR -fsycl-unnamed-lambda
 -cl-mad-enable -ffp-contract=fast)
     if(!LULESH_USE_SYCL_USM)
         target_link_libraries(overusm)

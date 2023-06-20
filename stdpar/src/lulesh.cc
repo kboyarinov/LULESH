@@ -3236,7 +3236,6 @@ int main(int argc, char *argv[]) {
                       opts.balance, opts.cost);
 #endif
 
-  auto start = std::chrono::high_resolution_clock::now();
 
 #ifdef USE_CUDA
    cudaMemAdvise(locDom, sizeof(Domain), cudaMemAdviseSetReadMostly, 0);
@@ -3250,13 +3249,11 @@ int main(int argc, char *argv[]) {
   //      std::cout << "region" << i + 1<< "size" << locDom->regElemSize(i)
   //      <<std::endl;
 
-#ifdef STDPAR_DEBUG
-  std::cout << std::boolalpha;
-  std::cout << "Should algo go? " << (locDom->time() < locDom->stoptime());
-  std::cout << " " << (locDom->cycle() < opts.its) << std::endl;
-  std::cout << "locDom->time() " << locDom->time() << std::endl;
-  std::cout << "locDom->stoptime() " << locDom->stoptime() << std::endl;
-#endif
+  // Warmup
+  TimeIncrement(*locDom);
+  LagrangeLeapFrog(*locDom);
+
+  auto start = std::chrono::high_resolution_clock::now();
 
   while ((locDom->time() < locDom->stoptime()) &&
          (locDom->cycle() < opts.its)) {
