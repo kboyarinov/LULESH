@@ -34,13 +34,13 @@ if(NOT DEFINED LULESH_USE_ITERATORS)
     set(LULESH_USE_ITERATORS OFF)
 endif()
 
-add_compile_options(-fsycl -O3 -w -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=${LULESH_STDPAR_POLICY} -fsycl-unnamed-lambda
--cl-mad-enable -ffp-contract=fast)
+add_compile_options(-fsycl -O3 -w -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=${LULESH_STDPAR_POLICY})
 add_link_options(-fsycl -w -ltbb)
 
 if(ENABLE_STDPAR_REDIRECT)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../generated_headers)
-    add_compile_options(-DSTDPAR)
+    add_compile_options(-fsycl-targets=spir64_gen -Xs "-device pvc" -DSTDPAR -fsycl-unnamed-lambda
+-cl-mad-enable -ffp-contract=fast)
     if(!LULESH_USE_SYCL_USM)
         target_link_libraries(overusm)
     endif()
