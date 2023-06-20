@@ -32,17 +32,16 @@ int main() {
         auto start = std::chrono::high_resolution_clock::now();
 
         std::exclusive_scan(std::execution::par_unseq, data_from, data_from + n, tmp.data(), T{});
-        printf("check\n");
         std::transform(std::execution::par_unseq, tmp.data() + average, tmp.data() + n, tmp.data(), data_to,
                        [average](const T x, const T y) { return (x - y) / average; });
-        printf("check2\n");
 
         auto finish = std::chrono::high_resolution_clock::now();
         times.emplace_back(std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count());
     }
 
+    std::cout << "Run completed" << std::endl;
     std::sort(times.begin(), times.end());
-    std::cout << "Elapsed time: " << times[n / 2] << " ms" << std::endl;
+    std::cout << "Elapsed time: " << times[n_times / 2] << " ms" << std::endl;
 
     for (std::size_t i = 0; i < n; ++i) {
         (data_from + i)->~T();
