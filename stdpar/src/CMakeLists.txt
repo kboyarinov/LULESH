@@ -34,7 +34,7 @@ if(NOT DEFINED LULESH_USE_ITERATORS)
     set(LULESH_USE_ITERATORS OFF)
 endif()
 
-add_compile_options(-fsycl -w -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=${LULESH_STDPAR_POLICY} -fsycl-unnamed-lambda
+add_compile_options(-fsycl -O3 -w -DUSE_MPI=0 -DLULESH_STDPAR_POLICY=${LULESH_STDPAR_POLICY} -fsycl-unnamed-lambda
 -cl-mad-enable -ffp-contract=fast)
 add_link_options(-fsycl -w -ltbb)
 
