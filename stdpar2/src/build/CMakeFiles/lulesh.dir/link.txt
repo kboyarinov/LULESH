@@ -1,0 +1,1 @@
+icpx -fsycl -w -ltbb CMakeFiles/lulesh.dir/lulesh.cc.o CMakeFiles/lulesh.dir/lulesh-comm.cc.o CMakeFiles/lulesh.dir/lulesh-viz.cc.o CMakeFiles/lulesh.dir/lulesh-util.cc.o CMakeFiles/lulesh.dir/lulesh-init.cc.o -o lulesh 
