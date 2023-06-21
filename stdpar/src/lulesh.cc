@@ -2726,7 +2726,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   auto start = std::chrono::high_resolution_clock::now();
   auto line = __LINE__ + 1;
 #endif
-    LULESH_ALGO_NAMESPACE::for_each_n(LULESH_ALGO_POLICY, counting_iterator(0), numElemReg,
+    LULESH_ALGO_NAMESPACE::for_each_n(std::execution::seq, counting_iterator(0), numElemReg,
     // LULESH_ALGO_NAMESPACE::for_each_n(std::execution::par, counting_iterator(0), numElemReg,
                     // [=, &domain](Index_t i) {
                     [=](Index_t i) {
