@@ -3260,6 +3260,7 @@ int main(int argc, char *argv[]) {
 #ifdef STDPAR_DEBUG
     std::cout << "Begin cycle" << std::endl;
 #endif
+    std::cout << "-----------" << std::endl;
     TimeIncrement(*locDom);
     LagrangeLeapFrog(*locDom);
 

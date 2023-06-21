@@ -33,11 +33,11 @@ int main() {
 
         auto start = std::chrono::high_resolution_clock::now();
 
-        std::transform(std::execution::par_unseq, data_from1, data_from1 + n, data_from2, data_to,
+        std::transform(std::execution::POLICY, data_from1, data_from1 + n, data_from2, data_to,
                        [scalar](auto&& x, auto&& y) { return x + scalar * y; });
 
         auto finish = std::chrono::high_resolution_clock::now();
-        times.emplace_back(std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count());
+        times.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count());
     }
 
     std::cout << "Run completed" << std::endl;
