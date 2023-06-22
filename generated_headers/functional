@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_FUNCTIONAL
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <functional>
+
+#ifdef TOP_LEVEL_FUNCTIONAL
+#undef TOP_LEVEL_FUNCTIONAL
+#include <oneapi/dpl/functional>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_FUNCTIONAL

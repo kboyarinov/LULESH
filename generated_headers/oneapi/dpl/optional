@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_ONEAPI_DPL_OPTIONAL
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <oneapi/dpl/optional>
+
+#ifdef TOP_LEVEL_ONEAPI_DPL_OPTIONAL
+#undef TOP_LEVEL_ONEAPI_DPL_OPTIONAL
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_ONEAPI_DPL_OPTIONAL

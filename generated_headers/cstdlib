@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_CSTDLIB
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <cstdlib>
+
+#ifdef TOP_LEVEL_CSTDLIB
+#undef TOP_LEVEL_CSTDLIB
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_CSTDLIB

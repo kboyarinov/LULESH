@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_DEQUE
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <deque>
+
+#ifdef TOP_LEVEL_DEQUE
+#undef TOP_LEVEL_DEQUE
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_DEQUE

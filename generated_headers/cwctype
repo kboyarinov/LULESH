@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_CWCTYPE
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <cwctype>
+
+#ifdef TOP_LEVEL_CWCTYPE
+#undef TOP_LEVEL_CWCTYPE
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_CWCTYPE

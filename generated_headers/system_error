@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_SYSTEM_ERROR
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <system_error>
+
+#ifdef TOP_LEVEL_SYSTEM_ERROR
+#undef TOP_LEVEL_SYSTEM_ERROR
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_SYSTEM_ERROR

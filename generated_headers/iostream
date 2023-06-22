@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_IOSTREAM
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <iostream>
+
+#ifdef TOP_LEVEL_IOSTREAM
+#undef TOP_LEVEL_IOSTREAM
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_IOSTREAM

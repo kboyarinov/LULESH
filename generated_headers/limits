@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_LIMITS
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <limits>
+
+#ifdef TOP_LEVEL_LIMITS
+#undef TOP_LEVEL_LIMITS
+#include <oneapi/dpl/limits>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_LIMITS

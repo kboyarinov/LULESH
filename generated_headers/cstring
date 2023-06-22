@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_CSTRING
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <cstring>
+
+#ifdef TOP_LEVEL_CSTRING
+#undef TOP_LEVEL_CSTRING
+#include <oneapi/dpl/cstring>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_CSTRING

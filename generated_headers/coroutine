@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_COROUTINE
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <coroutine>
+
+#ifdef TOP_LEVEL_COROUTINE
+#undef TOP_LEVEL_COROUTINE
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_COROUTINE

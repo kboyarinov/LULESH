@@ -19,6 +19,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <vector>
+#include <iterator>
 
 //**************************************************
 // Allow flexibility for arithmetic representations

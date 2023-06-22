@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_CFLOAT
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <cfloat>
+
+#ifdef TOP_LEVEL_CFLOAT
+#undef TOP_LEVEL_CFLOAT
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_CFLOAT

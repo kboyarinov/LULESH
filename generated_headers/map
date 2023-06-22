@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_MAP
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <map>
+
+#ifdef TOP_LEVEL_MAP
+#undef TOP_LEVEL_MAP
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_MAP

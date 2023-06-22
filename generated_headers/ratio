@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_RATIO
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <ratio>
+
+#ifdef TOP_LEVEL_RATIO
+#undef TOP_LEVEL_RATIO
+#include <oneapi/dpl/ratio>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_RATIO

@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_ITERATOR
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <iterator>
+
+#ifdef TOP_LEVEL_ITERATOR
+#undef TOP_LEVEL_ITERATOR
+#include <oneapi/dpl/iterator>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_ITERATOR

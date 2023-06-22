@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_SET
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <set>
+
+#ifdef TOP_LEVEL_SET
+#undef TOP_LEVEL_SET
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_SET

@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_COMPARE
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <compare>
+
+#ifdef TOP_LEVEL_COMPARE
+#undef TOP_LEVEL_COMPARE
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_COMPARE

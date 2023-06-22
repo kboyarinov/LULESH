@@ -1,0 +1,13 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_ALGORITHM
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <algorithm>
+
+#ifdef TOP_LEVEL_ALGORITHM
+#undef TOP_LEVEL_ALGORITHM
+#include <oneapi/dpl/algorithm>
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_ALGORITHM

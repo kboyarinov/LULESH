@@ -1,0 +1,12 @@
+#ifndef TOP_LEVEL_STD
+#define TOP_LEVEL_FILESYSTEM
+#define TOP_LEVEL_STD
+#endif // TOP_LEVEL_STD
+
+#include_next <filesystem>
+
+#ifdef TOP_LEVEL_FILESYSTEM
+#undef TOP_LEVEL_FILESYSTEM
+#undef TOP_LEVEL_STD
+
+#endif // TOP_LEVEL_FILESYSTEM
