@@ -2345,8 +2345,14 @@ int main(int argc, char *argv[]) {
   InitMeshDecomp(numRanks, myRank, &col, &row, &plane, &side);
 
   // Build the main data structure and initialize it
+#ifdef LULESH_USE_SYCL_USM
+  locDom = Allocate<Domain>(1);
+  ::new(locDom) Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
+                       opts.balance, opts.cost);
+#else
   locDom = new Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
                       opts.balance, opts.cost);
+#endif
 
 #ifdef USE_CUDA
    cudaMemAdvise(locDom, sizeof(Domain), cudaMemAdviseSetReadMostly, 0);
@@ -2391,7 +2397,12 @@ int main(int argc, char *argv[]) {
     VerifyAndWriteFinalOutput(elapsed_timeG, *locDom, opts.nx, numRanks);
   }
 
+#ifdef LULESH_USE_SYCL_USM
+  locDom->~Domain();
+  Release(&locDom);
+#else
   delete locDom;
+#endif
 
   return 0;
 }

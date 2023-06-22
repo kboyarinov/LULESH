@@ -71,7 +71,11 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
 
    m_numNode = edgeNodes*edgeNodes*edgeNodes ;
 
+#ifdef LULESH_USE_SYCL_USM
+   m_regNumList = Allocate<Index_t>(numElem()) ;  // material indexset
+#else
    m_regNumList = new Index_t[numElem()] ;  // material indexset
+#endif
 
    // Elem-centered
    AllocateElemPersistent(numElem()) ;
@@ -190,6 +194,16 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
 ////////////////////////////////////////////////////////////////////////////////
 Domain::~Domain()
 {
+#ifdef LULESH_USE_SYCL_USM
+   Release(&m_regNumList);
+   Release(&m_nodeElemStart);
+   Release(&m_nodeElemCornerList);
+   Release(&m_regElemSize);
+   for (Index_t i=0 ; i<numReg() ; ++i) {
+     Release(&m_regElemlist[i]);
+   }
+   Release(&m_regElemlist);
+#else
    delete [] m_regNumList;
    delete [] m_nodeElemStart;
    delete [] m_nodeElemCornerList;
@@ -198,6 +212,7 @@ Domain::~Domain()
      delete [] m_regElemlist[i];
    }
    delete [] m_regElemlist;
+#endif
 
 } // End destructor
 
@@ -261,7 +276,11 @@ void
 Domain::SetupThreadSupportStructures()
 {
     // set up node-centered indexing of elements
+#ifdef LULESH_USE_SYCL_USM
+    Index_t *nodeElemCount = Allocate<Index_t>(numNode()) ;
+#else
     Index_t *nodeElemCount = new Index_t[numNode()] ;
+#endif
 
     for (Index_t i=0; i<numNode(); ++i) {
       nodeElemCount[i] = 0 ;
@@ -274,7 +293,11 @@ Domain::SetupThreadSupportStructures()
       }
     }
 
+#ifdef LULESH_USE_SYCL_USM
+    m_nodeElemStart = Allocate<Index_t>(numNode()+1) ;
+#else
     m_nodeElemStart = new Index_t[numNode()+1] ;
+#endif
 
     m_nodeElemStart[0] = 0;
 
@@ -283,7 +306,11 @@ Domain::SetupThreadSupportStructures()
 	m_nodeElemStart[i-1] + nodeElemCount[i-1] ;
     }
 
+#ifdef LULESH_USE_SYCL_USM
+    m_nodeElemCornerList = Allocate<Index_t>(m_nodeElemStart[numNode()]);
+#else
     m_nodeElemCornerList = new Index_t[m_nodeElemStart[numNode()]];
+#endif
 
     for (Index_t i=0; i < numNode(); ++i) {
       nodeElemCount[i] = 0;
@@ -310,7 +337,11 @@ Domain::SetupThreadSupportStructures()
       }
     }
 
+#ifdef LULESH_USE_SYCL_USM
+    Release(&nodeElemCount);
+#else
     delete [] nodeElemCount ;
+#endif
 }
 
 
@@ -348,8 +379,13 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
    srand(0);
    Index_t myRank = 0;
    this->numReg() = nr;
+#ifdef LULESH_USE_SYCL_USM
+   m_regElemSize = Allocate<Index_t>(numReg());
+   m_regElemlist = Allocate<Index_t*>(numReg());
+#else
    m_regElemSize = new Index_t[numReg()];
    m_regElemlist = new Index_t*[numReg()];
+#endif
    Index_t nextIndex = 0;
    //if we only have one region just fill it
    // Fill out the regNumList with material numbers, which are always
@@ -370,7 +406,11 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
       Index_t elements;
       Index_t runto = 0;
       Int_t costDenominator = 0;
+#ifdef LULESH_USE_SYCL_USM
+      Int_t* regBinEnd = Allocate<Int_t>(numReg());
+#else
       Int_t* regBinEnd = new Int_t[numReg()];
+#endif
       //Determine the relative weights of all the regions.  This is based off the -b flag.  Balance is the value passed into b.
       for (Index_t i=0 ; i<numReg() ; ++i) {
          regElemSize(i) = 0;
@@ -426,7 +466,11 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
 	 lastReg = regionNum;
       }
 
+#ifdef LULESH_USE_SYCL_USM
+      Release(&regBinEnd);
+#else
       delete [] regBinEnd;
+#endif
    }
    // Convert regNumList to region index sets
    // First, count size of each region
@@ -436,7 +480,11 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
    }
    // Second, allocate each region index set
    for (Index_t i=0 ; i<numReg() ; ++i) {
+#ifdef LULESH_USE_SYCL_USM
+      m_regElemlist[i] = Allocate<Index_t>(regElemSize(i));
+#else
       m_regElemlist[i] = new Index_t[regElemSize(i)];
+#endif
       regElemSize(i) = 0;
    }
    // Third, fill index sets
@@ -659,4 +707,3 @@ void InitMeshDecomp(Int_t numRanks, Int_t myRank,
 
    return;
 }
-

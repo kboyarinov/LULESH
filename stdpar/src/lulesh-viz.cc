@@ -131,7 +131,11 @@ DumpDomainToVisit(DBfile *db, Domain& domain, int myRank)
    int shapetype[1] = {DB_ZONETYPE_HEX};
    int shapesize[1] = {8};
    int shapecnt[1] = {domain.numElem()};
+#ifdef LULESH_USE_SYCL_USM
+   int *conn = Allocate<int>(domain.numElem() * 8)
+#else
    int *conn = new int[domain.numElem()*8] ;
+#endif
    int ci = 0 ;
    for (int ei=0; ei < domain.numElem(); ++ei) {
       Index_t *elemToNode = domain.nodelist(ei) ;
@@ -144,14 +148,24 @@ DumpDomainToVisit(DBfile *db, Domain& domain, int myRank)
                         0,0,0, /* Not carrying ghost zones */
                         shapetype, shapesize, shapecnt,
                         1, NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&conn);
+#else
    delete [] conn ;
+#endif
 
    /* Write out the mesh coordinates associated with the mesh */
    const char* coordnames[3] = {"X", "Y", "Z"};
    float *coords[3] ;
+#ifdef LULESH_USE_SYCL_USM
+   coords[0] = Allocate<float>(domain.numNode());
+   coords[1] = Allocate<float>(domain.numNode());
+   coords[2] = Allocate<float>(domain.numNode());
+#else
    coords[0] = new float[domain.numNode()] ;
    coords[1] = new float[domain.numNode()] ;
    coords[2] = new float[domain.numNode()] ;
+#endif
    for (int ni=0; ni < domain.numNode() ; ++ni) {
       coords[0][ni] = float(domain.x(ni)) ;
       coords[1][ni] = float(domain.y(ni)) ;
@@ -164,9 +178,15 @@ DumpDomainToVisit(DBfile *db, Domain& domain, int myRank)
                       domain.numNode(), domain.numElem(), "connectivity",
                       0, DB_FLOAT, optlist);
    ok += DBFreeOptlist(optlist);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&coords[2]);
+   Release(&coords[1]);
+   Release(&coords[0]);
+#else
    delete [] coords[2] ;
    delete [] coords[1] ;
    delete [] coords[0] ;
+#endif
 
    /* Write out the materials */
    int *matnums = new int[domain.numReg()];
@@ -177,52 +197,94 @@ DumpDomainToVisit(DBfile *db, Domain& domain, int myRank)
    ok += DBPutMaterial(db, "regions", "mesh", domain.numReg(),
                        matnums, domain.regNumList(), dims, 1,
                        NULL, NULL, NULL, NULL, 0, DB_FLOAT, NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&matnums);
+#else
    delete [] matnums;
+#endif
 
    /* Write out pressure, energy, relvol, q */
 
+#ifdef LULESH_USE_SYCL_USM
+   float *e = Allocate<float>(domain.numElem());
+#else
    float *e = new float[domain.numElem()] ;
+#endif
    for (int ei=0; ei < domain.numElem(); ++ei) {
       e[ei] = float(domain.e(ei)) ;
    }
    ok += DBPutUcdvar1(db, "e", "mesh", e,
                       domain.numElem(), NULL, 0, DB_FLOAT, DB_ZONECENT,
                       NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&e);
+#else
    delete [] e ;
+#endif
 
-
+#ifdef LULESH_USE_SYCL_USM
+   float *p = Allocate<float>(domain.numElem());
+#else
    float *p = new float[domain.numElem()] ;
+#endif
    for (int ei=0; ei < domain.numElem(); ++ei) {
       p[ei] = float(domain.p(ei)) ;
    }
    ok += DBPutUcdvar1(db, "p", "mesh", p,
                       domain.numElem(), NULL, 0, DB_FLOAT, DB_ZONECENT,
                       NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&p);
+#else
    delete [] p ;
+#endif
 
+#ifdef LULESH_USE_SYCL_USM
+   float *v = Allocate<float>(domain.numElem());
+#else
    float *v = new float[domain.numElem()] ;
+#endif
    for (int ei=0; ei < domain.numElem(); ++ei) {
       v[ei] = float(domain.v(ei)) ;
    }
    ok += DBPutUcdvar1(db, "v", "mesh", v,
                       domain.numElem(), NULL, 0, DB_FLOAT, DB_ZONECENT,
                       NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&v);
+#else
    delete [] v ;
+#endif
 
+#ifdef LULESH_USE_SYCL_USM
+   float *q = Allocate<float>(domain.numElem());
+#else
    float *q = new float[domain.numElem()] ;
+#endif
    for (int ei=0; ei < domain.numElem(); ++ei) {
       q[ei] = float(domain.q(ei)) ;
    }
    ok += DBPutUcdvar1(db, "q", "mesh", q,
                       domain.numElem(), NULL, 0, DB_FLOAT, DB_ZONECENT,
                       NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&q);
+#else
    delete [] q ;
+#endif
 
    /* Write out nodal speed, velocities */
+#ifdef LULESH_USE_SYCL_USM
+   float *zd    = Allocate<float>(domain.numNode());
+   float *yd    = Allocate<float>(domain.numNode());
+   float *xd    = Allocate<float>(domain.numNode());
+   float *speed = Allocate<float>(domain.numNode());
+#else
    float *zd    = new float[domain.numNode()];
    float *yd    = new float[domain.numNode()];
    float *xd    = new float[domain.numNode()];
    float *speed = new float[domain.numNode()];
+#endif
    for(int ni=0 ; ni < domain.numNode() ; ++ni) {
       xd[ni]    = float(domain.xd(ni));
       yd[ni]    = float(domain.yd(ni));
@@ -233,23 +295,39 @@ DumpDomainToVisit(DBfile *db, Domain& domain, int myRank)
    ok += DBPutUcdvar1(db, "speed", "mesh", speed,
                       domain.numNode(), NULL, 0, DB_FLOAT, DB_NODECENT,
                       NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&speed);
+#else
    delete [] speed;
+#endif
 
 
    ok += DBPutUcdvar1(db, "xd", "mesh", xd,
                       domain.numNode(), NULL, 0, DB_FLOAT, DB_NODECENT,
                       NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&xd)
+#else
    delete [] xd ;
+#endif
 
    ok += DBPutUcdvar1(db, "yd", "mesh", yd,
                       domain.numNode(), NULL, 0, DB_FLOAT, DB_NODECENT,
                       NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&yd);
+#else
    delete [] yd ;
+#endif
 
    ok += DBPutUcdvar1(db, "zd", "mesh", zd,
                       domain.numNode(), NULL, 0, DB_FLOAT, DB_NODECENT,
                       NULL);
+#ifdef LULESH_USE_SYCL_USM
+   Release(&zd);
+#else
    delete [] zd ;
+#endif
 
 
    if (ok != 0) {
@@ -283,22 +361,42 @@ void
   DBSetDir(db, "/");
 
   // Allocate a bunch of space for building up the string names
+#ifdef LULESH_USE_SYCL_USM
+  multimeshObjs = Allocate<char*>(numRanks);
+  multimatObjs = Allocate<char*>(numRanks);
+  multivarObjs = Allocate<char**>(numvars);
+  blockTypes = Allocate<int>(numRanks);
+  varTypes = Allocate<int>(numRanks);
+#else
   multimeshObjs = new char*[numRanks];
   multimatObjs = new char*[numRanks];
   multivarObjs = new char**[numvars];
   blockTypes = new int[numRanks];
   varTypes = new int[numRanks];
+#endif
 
   for(int v=0 ; v<numvars ; ++v) {
+#ifdef LULESH_USE_SYCL_USM
+     multivarObjs[v] = Allocate<char*>(numRanks);
+#else
      multivarObjs[v] = new char*[numRanks];
+#endif
   }
 
   for(int i=0 ; i<numRanks ; ++i) {
+#ifdef LULESH_USE_SYCL_USM
+     multimeshObjs[i] = Allocate<char>(64);
+     multimatObjs[i] = Allocate<char>(64);
+     for(int v=0 ; v<numvars ; ++v) {
+        multivarObjs[v][i] = Allocate<char>(64);
+     }
+#else
      multimeshObjs[i] = new char[64];
      multimatObjs[i] = new char[64];
      for(int v=0 ; v<numvars ; ++v) {
         multivarObjs[v][i] = new char[64];
      }
+#endif
      blockTypes[i] = DB_UCDMESH;
      varTypes[i] = DB_UCDVAR;
   }
@@ -342,6 +440,25 @@ void
                          (char**)multivarObjs[v], varTypes, NULL);
   }
 
+#ifdef LULESH_USE_SYCL_USM
+   for(int v=0; v < numvars; ++v) {
+    for(int i = 0; i < numRanks; i++) {
+      Release(&multimatObjs[v][i]);
+    }
+    Release(&multimatObjs[v]);
+  }
+
+  // Clean up
+  for(int i=0 ; i<numRanks ; i++) {
+    Release(&multimeshObjs[i]);
+    Release(&multimatObjs[i]);
+  }
+  Release(&multimeshObjs);
+  Release(&multimatObjs);
+  Release(&multivarObjs);
+  Release(&blockTypes);
+  Release(&varTypes);
+#else
   for(int v=0; v < numvars; ++v) {
     for(int i = 0; i < numRanks; i++) {
       delete multivarObjs[v][i];
@@ -359,6 +476,7 @@ void
   delete [] multivarObjs;
   delete [] blockTypes;
   delete [] varTypes;
+#endif
 
   if (ok != 0) {
     printf("Error writing out multiXXX objs to viz file - rank 0\n");
@@ -430,4 +548,3 @@ void DumpToVisit(Domain& domain, int numFiles, int myRank, int numRanks)
 }
 
 #endif
-

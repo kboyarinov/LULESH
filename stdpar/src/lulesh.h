@@ -107,17 +107,32 @@ inline real10 FABS(real10 arg) { return fabsl(arg) ; }
 /* might want to add access methods so that memory can be */
 /* better managed, as in luleshFT */
 
+#ifdef LULESH_USE_SYCL_USM
+#include <sycl/sycl.hpp>
+#include <oneapi/dpl/execution>
+#endif
+
 template <typename T>
 T *Allocate(size_t size)
 {
+#ifdef LULESH_USE_SYCL_USM
+   return static_cast<T *>(sycl::malloc_shared(sizeof(T) * size, oneapi::dpl::execution::dpcpp_default.queue()));
+#else
    return static_cast<T *>(malloc(sizeof(T)*size)) ;
+#endif
 }
 
 template <typename T>
 void Release(T **ptr)
 {
    if (*ptr != NULL) {
+
+#ifdef LULESH_USE_SYCL_USM
+      sycl::free(*ptr, oneapi::dpl::execution::dpcpp_default.queue());
+#else
       free(*ptr) ;
+#endif
+
       *ptr = NULL ;
    }
 }
@@ -144,6 +159,26 @@ void Release(T **ptr)
  *  "Real_t &y(Index_t idx) { return m_coord[idx].y ; }"
  *  "Real_t &z(Index_t idx) { return m_coord[idx].z ; }"
  */
+
+template <typename T>
+class USMAllocator : public sycl::usm_allocator<T, sycl::usm::alloc::shared> {
+private:
+   using base_type = sycl::usm_allocator<T, sycl::usm::alloc::shared>;
+public:
+   template <typename U> struct rebind {
+      using other = USMAllocator<U>;
+   };
+
+   USMAllocator() : base_type(oneapi::dpl::execution::dpcpp_default.queue()) {}
+}; // USMAllocator
+
+#ifdef LULESH_USE_SYCL_USM
+template <typename T>
+using Vector = std::vector<T, USMAllocator<T>>;
+#else
+template <typename T>
+using Vector = std::vector<T>;
+#endif
 
 class Domain {
 
@@ -492,27 +527,27 @@ class Domain {
    //
 
    /* Node-centered */
-   std::vector<Real_t> m_x ;  /* coordinates */
-   std::vector<Real_t> m_y ;
-   std::vector<Real_t> m_z ;
+   Vector<Real_t> m_x ;  /* coordinates */
+   Vector<Real_t> m_y ;
+   Vector<Real_t> m_z ;
 
-   std::vector<Real_t> m_xd ; /* velocities */
-   std::vector<Real_t> m_yd ;
-   std::vector<Real_t> m_zd ;
+   Vector<Real_t> m_xd ; /* velocities */
+   Vector<Real_t> m_yd ;
+   Vector<Real_t> m_zd ;
 
-   std::vector<Real_t> m_xdd ; /* accelerations */
-   std::vector<Real_t> m_ydd ;
-   std::vector<Real_t> m_zdd ;
+   Vector<Real_t> m_xdd ; /* accelerations */
+   Vector<Real_t> m_ydd ;
+   Vector<Real_t> m_zdd ;
 
-   std::vector<Real_t> m_fx ;  /* forces */
-   std::vector<Real_t> m_fy ;
-   std::vector<Real_t> m_fz ;
+   Vector<Real_t> m_fx ;  /* forces */
+   Vector<Real_t> m_fy ;
+   Vector<Real_t> m_fz ;
 
-   std::vector<Real_t> m_nodalMass ;  /* mass */
+   Vector<Real_t> m_nodalMass ;  /* mass */
 
-   std::vector<Index_t> m_symmX ;  /* symmetry plane nodesets */
-   std::vector<Index_t> m_symmY ;
-   std::vector<Index_t> m_symmZ ;
+   Vector<Index_t> m_symmX ;  /* symmetry plane nodesets */
+   Vector<Index_t> m_symmY ;
+   Vector<Index_t> m_symmZ ;
 
    // Element-centered
 
@@ -523,16 +558,16 @@ class Domain {
    Index_t *m_regNumList ;    // Region number per domain element
    Index_t **m_regElemlist ;  // region indexset
 
-   std::vector<Index_t>  m_nodelist ;     /* elemToNode connectivity */
+   Vector<Index_t>  m_nodelist ;     /* elemToNode connectivity */
 
-   std::vector<Index_t>  m_lxim ;  /* element connectivity across each face */
-   std::vector<Index_t>  m_lxip ;
-   std::vector<Index_t>  m_letam ;
-   std::vector<Index_t>  m_letap ;
-   std::vector<Index_t>  m_lzetam ;
-   std::vector<Index_t>  m_lzetap ;
+   Vector<Index_t>  m_lxim ;  /* element connectivity across each face */
+   Vector<Index_t>  m_lxip ;
+   Vector<Index_t>  m_letam ;
+   Vector<Index_t>  m_letap ;
+   Vector<Index_t>  m_lzetam ;
+   Vector<Index_t>  m_lzetap ;
 
-   std::vector<Int_t>    m_elemBC ;  /* symmetry/free-surface flags for each elem face */
+   Vector<Int_t>    m_elemBC ;  /* symmetry/free-surface flags for each elem face */
 
    Real_t             *m_dxx ;  /* principal strains -- temporary */
    Real_t             *m_dyy ;
@@ -546,24 +581,24 @@ class Domain {
    Real_t             *m_delx_eta ;
    Real_t             *m_delx_zeta ;
 
-   std::vector<Real_t> m_e ;   /* energy */
+   Vector<Real_t> m_e ;   /* energy */
 
-   std::vector<Real_t> m_p ;   /* pressure */
-   std::vector<Real_t> m_q ;   /* q */
-   std::vector<Real_t> m_ql ;  /* linear term for q */
-   std::vector<Real_t> m_qq ;  /* quadratic term for q */
+   Vector<Real_t> m_p ;   /* pressure */
+   Vector<Real_t> m_q ;   /* q */
+   Vector<Real_t> m_ql ;  /* linear term for q */
+   Vector<Real_t> m_qq ;  /* quadratic term for q */
 
-   std::vector<Real_t> m_v ;     /* relative volume */
-   std::vector<Real_t> m_volo ;  /* reference volume */
-   std::vector<Real_t> m_vnew ;  /* new relative volume -- temporary */
-   std::vector<Real_t> m_delv ;  /* m_vnew - m_v */
-   std::vector<Real_t> m_vdov ;  /* volume derivative over volume */
+   Vector<Real_t> m_v ;     /* relative volume */
+   Vector<Real_t> m_volo ;  /* reference volume */
+   Vector<Real_t> m_vnew ;  /* new relative volume -- temporary */
+   Vector<Real_t> m_delv ;  /* m_vnew - m_v */
+   Vector<Real_t> m_vdov ;  /* volume derivative over volume */
 
-   std::vector<Real_t> m_arealg ;  /* characteristic length of an element */
+   Vector<Real_t> m_arealg ;  /* characteristic length of an element */
 
-   std::vector<Real_t> m_ss ;      /* "sound speed" */
+   Vector<Real_t> m_ss ;      /* "sound speed" */
 
-   std::vector<Real_t> m_elemMass ;  /* mass */
+   Vector<Real_t> m_elemMass ;  /* mass */
 
    // Cutoffs (treat as constants)
    const Real_t  m_e_cut ;             // energy tolerance
@@ -629,9 +664,9 @@ class Domain {
 
 public:
 
-   std::vector<Real_t> fx_elem;
-   std::vector<Real_t> fy_elem;
-   std::vector<Real_t> fz_elem;
+   Vector<Real_t> fx_elem;
+   Vector<Real_t> fy_elem;
+   Vector<Real_t> fz_elem;
 
 } ;
 

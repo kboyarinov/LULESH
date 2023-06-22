@@ -10,13 +10,23 @@ if(NOT DEFINED ENABLE_STDPAR_REDIRECT)
     set(ENABLE_STDPAR_REDIRECT ON)
 endif()
 
+if(NOT DEFINED LULESH_USE_SYCL_USM)
+    set(LULESH_USE_SYCL_USM OFF)
+endif()
+
 add_compile_options(-fsycl -O3 -w -DUSE_MPI=0)
 add_link_options(-fsycl -w -ltbb)
 
 if(ENABLE_STDPAR_REDIRECT)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../generated_headers)
     add_compile_options(-DSTDPAR -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast)
-    # add_link_options(-loverusm)
+    if(NOT LULESH_USE_SYCL_USM)
+        add_link_options(-loverusm)
+    endif()
+endif()
+
+if(LULESH_USE_SYCL_USM)
+    add_compile_options(-DLULESH_USE_SYCL_USM)
 endif()
 
 add_executable(lulesh lulesh.cc lulesh-comm.cc lulesh-viz.cc lulesh-util.cc lulesh-init.cc)
