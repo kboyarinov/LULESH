@@ -14,8 +14,16 @@ if(NOT DEFINED LULESH_USE_SYCL_USM)
     set(LULESH_USE_SYCL_USM OFF)
 endif()
 
+if(NOT ENABLE_AOT)
+    set(ENABLE_AOT OFF)
+endif()
+
 add_compile_options(-fsycl -O3 -w -DUSE_MPI=0)
 add_link_options(-fsycl -w -ltbb)
+
+if(ENABLE_AOT)
+    add_compile_options(-fsycl-targets=spir64_gen -Xs "-device pvc")
+endif()
 
 if(ENABLE_STDPAR_REDIRECT)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../generated_headers)
