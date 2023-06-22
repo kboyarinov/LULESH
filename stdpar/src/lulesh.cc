@@ -31,18 +31,18 @@ DIFFERENCES BETWEEN THIS VERSION (2.x) AND EARLIER VERSIONS:
  -v              : Output viz file (requires compiling with -DVIZ_MESH
  -h              : This message
 
- printf("Usage: %s [opts]\n", execname);
-      printf(" where [opts] is one or more of:\n");
-      printf(" -q              : quiet mode - suppress all stdout\n");
-      printf(" -i <iterations> : number of cycles to run\n");
-      printf(" -s <size>       : length of cube mesh along side\n");
-      printf(" -r <numregions> : Number of distinct regions (def: 11)\n");
-      printf(" -b <balance>    : Load balance between regions of a domain (def:
-1)\n"); printf(" -c <cost>       : Extra cost of more expensive regions (def:
-1)\n"); printf(" -f <numfiles>   : Number of files to split viz dump into (def:
-(np+10)/9)\n"); printf(" -p              : Print out progress\n"); printf(" -v
-: Output viz file (requires compiling with -DVIZ_MESH\n"); printf(" -h : This
-message\n"); printf("\n\n");
+ // printf("Usage: %s [opts]\n", execname);
+      // printf(" where [opts] is one or more of:\n");
+      // printf(" -q              : quiet mode - suppress all stdout\n");
+      // printf(" -i <iterations> : number of cycles to run\n");
+      // printf(" -s <size>       : length of cube mesh along side\n");
+      // printf(" -r <numregions> : Number of distinct regions (def: 11)\n");
+      // printf(" -b <balance>    : Load balance between regions of a domain (def:
+1)\n"); // printf(" -c <cost>       : Extra cost of more expensive regions (def:
+1)\n"); // printf(" -f <numfiles>   : Number of files to split viz dump into (def:
+(np+10)/9)\n"); // printf(" -p              : Print out progress\n"); // printf(" -v
+: Output viz file (requires compiling with -DVIZ_MESH\n"); // printf(" -h : This
+message\n"); // printf("\n\n");
 
 *Notable changes in LULESH 2.0
 
@@ -1585,7 +1585,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
           delvm = Real_t(0.0);
           break;
         default:
-          printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
+          // // printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
           delvm = 0; /* ERROR - but quiets the compiler */
           break;
         }
@@ -1601,7 +1601,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
           delvp = Real_t(0.0);
           break;
         default:
-          printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
+          // printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
           delvp = 0; /* ERROR - but quiets the compiler */
           break;
         }
@@ -1638,7 +1638,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
           delvm = Real_t(0.0);
           break;
         default:
-          printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
+          // printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
           delvm = 0; /* ERROR - but quiets the compiler */
           break;
         }
@@ -1654,7 +1654,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
           delvp = Real_t(0.0);
           break;
         default:
-          printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
+          // printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
           delvp = 0; /* ERROR - but quiets the compiler */
           break;
         }
@@ -1691,7 +1691,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
           delvm = Real_t(0.0);
           break;
         default:
-          printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
+          // printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
           delvm = 0; /* ERROR - but quiets the compiler */
           break;
         }
@@ -1707,7 +1707,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
           delvp = Real_t(0.0);
           break;
         default:
-          printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
+          // printf("Error in switch at %s line %d\n", __FILE__, __LINE__);
           delvp = 0; /* ERROR - but quiets the compiler */
           break;
         }
