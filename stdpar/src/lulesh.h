@@ -19,7 +19,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <vector>
-#include <iterator>
 
 //**************************************************
 // Allow flexibility for arithmetic representations
@@ -107,6 +106,7 @@ inline real10 FABS(real10 arg) { return fabsl(arg) ; }
 /* might want to add access methods so that memory can be */
 /* better managed, as in luleshFT */
 
+#include <oneapi/dpl/iterator>
 #ifdef LULESH_USE_SYCL_USM
 #include <sycl/sycl.hpp>
 #include <oneapi/dpl/execution>
