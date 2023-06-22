@@ -160,6 +160,7 @@ void Release(T **ptr)
  *  "Real_t &z(Index_t idx) { return m_coord[idx].z ; }"
  */
 
+#ifdef LULESH_USE_SYCL_USM
 template <typename T>
 class USMAllocator : public sycl::usm_allocator<T, sycl::usm::alloc::shared> {
 private:
@@ -172,7 +173,6 @@ public:
    USMAllocator() : base_type(oneapi::dpl::execution::dpcpp_default.queue()) {}
 }; // USMAllocator
 
-#ifdef LULESH_USE_SYCL_USM
 template <typename T>
 using Vector = std::vector<T, USMAllocator<T>>;
 #else
