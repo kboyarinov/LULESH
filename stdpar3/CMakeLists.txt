@@ -15,7 +15,7 @@ add_link_options(-fsycl -w -ltbb)
 
 if(ENABLE_STDPAR_REDIRECT)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../generated_headers)
-    add_compile_options(-DSTDPAR -DPORT -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast)
+    add_compile_options(-DSTDPAR -DPORT -DPORT_MEMORY -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast)
 endif()
 
 add_executable(lulesh lulesh.cc lulesh-comm.cc lulesh-viz.cc lulesh-util.cc lulesh-init.cc)

@@ -3063,7 +3063,7 @@ static inline void CalcCourantConstraintForElems(Domain &domain, Index_t length,
   auto line = __LINE__ + 1;
 #endif
   dtcourant = LULESH_ALGO_NAMESPACE::transform_reduce(
-      std::execution::seq, counting_iterator(0), counting_iterator(length),
+      LULESH_ALGO_POLICY, counting_iterator(0), counting_iterator(length),
       // std::execution::par, counting_iterator(0), counting_iterator(length),
       dtcourant, [](Real_t a, Real_t b) { return a < b ? a : b; },
       [=](Index_t i) {
@@ -3111,7 +3111,7 @@ static inline void CalcHydroConstraintForElems(Domain &domain, Index_t length,
   auto line = __LINE__ + 1;
 #endif
   dthydro = LULESH_ALGO_NAMESPACE::transform_reduce(
-      std::execution::seq, counting_iterator(0), counting_iterator(length),
+      LULESH_ALGO_POLICY, counting_iterator(0), counting_iterator(length),
       // std::execution::par, counting_iterator(0), counting_iterator(length),
       dthydro, [](Real_t a, Real_t b) { return a < b ? a : b; },
       // [=, &domain](Index_t i) {

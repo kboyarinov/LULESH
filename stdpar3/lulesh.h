@@ -464,7 +464,7 @@ class Domain {
    MPI_Request sendRequest[26] ; // 6 faces + 12 edges + 8 corners
 #endif
 
-  private:
+  public:
 
    void BuildMesh(Int_t nx, Int_t edgeNodes, Int_t edgeElems);
    void SetupThreadSupportStructures();
@@ -479,7 +479,7 @@ class Domain {
    //
 
    /* Node-centered */
-#ifdef PORT
+#ifdef PORT_MEMORY
    std::vector<Real_t> m_x ;  /* coordinates */
    std::vector<Real_t> m_y ;
    std::vector<Real_t> m_z ;

@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/mnt/c/git/kboyarinov/LULESH/stdpar3/../../generated_headers
 
-CXX_FLAGS = -fsycl -O3 -w -DUSE_MPI=0 -DSTDPAR -DPORT -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast
+CXX_FLAGS = -fsycl -O3 -w -DUSE_MPI=0 -DSTDPAR -DPORT -DPORT_MEMORY -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast
 

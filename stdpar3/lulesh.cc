@@ -1111,6 +1111,11 @@ static inline void CalcForceForNodes(Domain& domain)
            true, false) ;
 #endif
 
+  std::cout << "Num node: " << numNode << std::endl;
+#ifdef MEASURE_EACH_ALGORITHM
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
+
 #ifdef PORT
   std::fill(std::execution::par_unseq, domain.fx_begin(), domain.fx_begin() + numNode, Real_t(0.0));
   std::fill(std::execution::par_unseq, domain.fy_begin(), domain.fy_begin() + numNode, Real_t(0.0));
@@ -1123,7 +1128,11 @@ static inline void CalcForceForNodes(Domain& domain)
      domain.fy(i) = Real_t(0.0) ;
      domain.fz(i) = Real_t(0.0) ;
   }
+#endif
 
+#ifdef MEASURE_EACH_ALGORITHM
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::cout << "3 fills elapsed time " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << std::endl;
 #endif
 
   /* Calcforce calls partial, force, hourq */
@@ -2747,6 +2756,7 @@ int main(int argc, char *argv[])
    timeval start;
    gettimeofday(&start, NULL) ;
 #endif
+
 //debug to see region sizes
 //   for(Int_t i = 0; i < locDom->numReg(); i++)
 //      std::cout << "region" << i + 1<< "size" << locDom->regElemSize(i) <<std::endl;

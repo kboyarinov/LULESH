@@ -40,7 +40,8 @@
 #else
 
 #define LULESH_ALGO_NAMESPACE std
-#define LULESH_ALGO_POLICY std::execution::LULESH_STDPAR_POLICY
+// #define LULESH_ALGO_POLICY std::execution::LULESH_STDPAR_POLICY
+#define LULESH_ALGO_POLICY oneapi::dpl::execution::LULESH_STDPAR_POLICY
 #define LULESH_SYCL_QUEUE oneapi::dpl::execution::dpcpp_default.queue()
 
 #endif
