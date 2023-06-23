@@ -994,7 +994,6 @@ static inline void CalcForceForNodes(Domain &domain) {
   auto finish = std::chrono::high_resolution_clock::now();
   std::cout << "CalcForceForNodes: 3 fill algorithms, elapsed time = " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << std::endl;
 #endif
-  throw interupt{};
 
   /* Calcforce calls partial, force, hourq */
   CalcVolumeForceForElems(domain);
