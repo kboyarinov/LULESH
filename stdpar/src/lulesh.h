@@ -541,7 +541,7 @@ class Domain {
    Vector<Real_t> m_zdd ;
 
 #if LULESH_EXP
-
+   std::vector<Real_t, USMAllocator<Real_t>> m_fx;
 #else
    Vector<Real_t> m_fx ;  /* forces */
 #endif
