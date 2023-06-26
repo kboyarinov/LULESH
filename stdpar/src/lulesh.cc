@@ -2243,7 +2243,9 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
       EvalEOSForElems(domain, vnewc, numElemReg, regElemList, rep);
     }
 
+#ifndef LULESH_ALLOCATE_EXP
     Release(&vnewc);
+#endif
   }
 }
 
