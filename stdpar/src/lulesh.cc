@@ -882,12 +882,14 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
 
 #ifdef LULESH_ALLOCATE_EXP
 struct FancyDeleter {
-  void operator()(Real_t* ptr) {
+  template <typename T>
+  void operator()(T* ptr) {
     Release(&ptr);
   }
 };
 
 using RealTPtr = std::unique_ptr<Real_t, FancyDeleter>;
+using MultRealTPtrs = std::unique_ptr<RealTPtr[], FancyDeleter>;
 
 RealTPtr dvdx_g;
 RealTPtr dvdy_g;
@@ -901,8 +903,25 @@ RealTPtr sigzz_g;
 RealTPtr determ_g;
 RealTPtr vnewc_g;
 
+MultRealTPtrs e_olds_g;
+MultRealTPtrs delvcs_g;
+MultRealTPtrs p_olds_g;
+MultRealTPtrs q_olds_g;
+MultRealTPtrs compressions_g;
+MultRealTPtrs compHalfSteps_g;
+MultRealTPtrs qq_olds_g;
+MultRealTPtrs ql_olds_g;
+MultRealTPtrs works_g;
+MultRealTPtrs p_news_g;
+MultRealTPtrs e_news_g;
+MultRealTPtrs q_news_g;
+MultRealTPtrs bvcs_g;
+MultRealTPtrs pbvcs_g;
+MultRealTPtrs pHalfSteps_g;
+
 void allocateGlobals(Domain* domain) {
   Index_t numElem = domain->numElem();
+  Index_t numReg = domain->numReg();
   Index_t numElem8 = numElem * 8;
 
   dvdx_g.reset(Allocate<Real_t>(numElem8));
@@ -919,6 +938,41 @@ void allocateGlobals(Domain* domain) {
 
   determ_g.reset(Allocate<Real_t>(numElem));
   vnewc_g.reset(Allocate<Real_t>(numElem8));
+
+  e_olds_g.reset(Allocate<RealTPtr>(numReg));
+  delvcs_g.reset(Allocate<RealTPtr>(numReg));
+  p_olds_g.reset(Allocate<RealTPtr>(numReg));
+  q_olds_g.reset(Allocate<RealTPtr>(numReg));
+  compressions_g.reset(Allocate<RealTPtr>(numReg));
+  compHalfSteps_g.reset(Allocate<RealTPtr>(numReg));
+  qq_olds_g.reset(Allocate<RealTPtr>(numReg));
+  ql_olds_g.reset(Allocate<RealTPtr>(numReg));
+  works_g.reset(Allocate<RealTPtr>(numReg));
+  p_news_g.reset(Allocate<RealTPtr>(numReg));
+  e_news_g.reset(Allocate<RealTPtr>(numReg));
+  q_news_g.reset(Allocate<RealTPtr>(numReg));
+  bvcs_g.reset(Allocate<RealTPtr>(numReg));
+  pbvcs_g.reset(Allocate<RealTPtr>(numReg));
+  pHalfSteps_g.reset(Allocate<RealTPtr>(numReg));
+
+  for (std::size_t r = 0; r < numReg; ++r) {
+    Index_t regElemSize = domain->regElemSize(r);
+    e_olds_g[r].reset(Allocate<Real_t>(regElemSize));
+    delvcs_g[r].reset(Allocate<Real_t>(regElemSize));
+    p_olds_g[r].reset(Allocate<Real_t>(regElemSize));
+    q_olds_g[r].reset(Allocate<Real_t>(regElemSize));
+    compressions_g[r].reset(Allocate<Real_t>(regElemSize));
+    compHalfSteps_g[r].reset(Allocate<Real_t>(regElemSize));
+    qq_olds_g[r].reset(Allocate<Real_t>(regElemSize));
+    ql_olds_g[r].reset(Allocate<Real_t>(regElemSize));
+    works_g[r].reset(Allocate<Real_t>(regElemSize));
+    p_news_g[r].reset(Allocate<Real_t>(regElemSize));
+    e_news_g[r].reset(Allocate<Real_t>(regElemSize));
+    q_news_g[r].reset(Allocate<Real_t>(regElemSize));
+    bvcs_g[r].reset(Allocate<Real_t>(regElemSize));
+    pbvcs_g[r].reset(Allocate<Real_t>(regElemSize));
+    pHalfSteps_g[r].reset(Allocate<Real_t>(regElemSize));
+  }
 }
 #endif
 
@@ -1922,8 +1976,12 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
                    Real_t *work, Real_t *delvc, Real_t pmin, Real_t p_cut,
                    Real_t e_cut, Real_t q_cut, Real_t emin, Real_t *qq_old,
                    Real_t *ql_old, Real_t rho0, Real_t eosvmax, Index_t length,
-                   Index_t *regElemList) {
+                   Index_t *regElemList, Index_t reg) {
+#ifndef LULESH_ALLOCATE_EXP
   Real_t *pHalfStep = Allocate<Real_t>(length);
+#else
+  Real_t *pHalfStep = pHalfSteps_g[reg].get();
+#endif
 
   std::for_each_n(
       std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
@@ -2038,7 +2096,9 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
         }
       });
 
+#ifndef LULESH_ALLOCATE_EXP
   Release(&pHalfStep);
+#endif
 
   return;
 }
@@ -2070,7 +2130,7 @@ static inline void CalcSoundSpeedForElems(Domain &domain, Real_t *vnewc,
 
 static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                                    Int_t numElemReg, Index_t *regElemList,
-                                   Int_t rep) {
+                                   Int_t rep, Int_t reg) {
   Real_t e_cut = domain.e_cut();
   Real_t p_cut = domain.p_cut();
   Real_t ss4o3 = domain.ss4o3();
@@ -2085,6 +2145,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   // These temporaries will be of different size for
   // each call (due to different sized region element
   // lists)
+#ifndef LULESH_ALLOCATE_EXP
   Real_t *e_old = Allocate<Real_t>(numElemReg);
   Real_t *delvc = Allocate<Real_t>(numElemReg);
   Real_t *p_old = Allocate<Real_t>(numElemReg);
@@ -2099,6 +2160,22 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   Real_t *q_new = Allocate<Real_t>(numElemReg);
   Real_t *bvc = Allocate<Real_t>(numElemReg);
   Real_t *pbvc = Allocate<Real_t>(numElemReg);
+#else
+  Real_t *e_old = e_olds_g[reg].get();
+  Real_t *delvc = delvcs_g[reg].get();
+  Real_t *p_old = p_olds_g[reg].get();
+  Real_t *q_old = q_olds_g[reg].get();
+  Real_t *compression = compressions_g[reg].get();
+  Real_t *compHalfStep = compHalfSteps_g[reg].get();
+  Real_t *qq_old = qq_olds_g[reg].get();
+  Real_t *ql_old = ql_olds_g[reg].get();
+  Real_t *work = works_g[reg].get();
+  Real_t *p_new = p_news_g[reg].get();
+  Real_t *e_new = e_news_g[reg].get();
+  Real_t *q_new = q_news_g[reg].get();
+  Real_t *bvc = bvcs_g[reg].get();
+  Real_t *pbvc = pbvcs_g[reg].get();
+#endif
 
   Domain* domain_ptr = &domain;
   // loop to add load imbalance based on region number
@@ -2151,7 +2228,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
     CalcEnergyForElems(p_new, e_new, q_new, bvc, pbvc, p_old, e_old, q_old,
                        compression, compHalfStep, vnewc, work, delvc, pmin,
                        p_cut, e_cut, q_cut, emin, qq_old, ql_old, rho0, eosvmax,
-                       numElemReg, regElemList);
+                       numElemReg, regElemList, reg);
   }
 
   std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
@@ -2165,6 +2242,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   CalcSoundSpeedForElems(domain, vnewc, rho0, e_new, p_new, pbvc, bvc, ss4o3,
                          numElemReg, regElemList);
 
+#ifndef LULESH_ALLOCATE_EXP
   Release(&pbvc);
   Release(&bvc);
   Release(&q_new);
@@ -2179,6 +2257,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   Release(&p_old);
   Release(&delvc);
   Release(&e_old);
+#endif
 }
 
 /******************************************/
@@ -2240,7 +2319,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
       // very expensive regions
       else
         rep = 10 * (1 + domain.cost());
-      EvalEOSForElems(domain, vnewc, numElemReg, regElemList, rep);
+      EvalEOSForElems(domain, vnewc, numElemReg, regElemList, rep, r);
     }
 
 #ifndef LULESH_ALLOCATE_EXP
