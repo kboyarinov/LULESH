@@ -880,16 +880,47 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
 
 /******************************************/
 
+#ifdef LULESH_ALLOCATE_EXP
+struct FancyDeleter {
+  void operator()(Real_t* ptr) {
+    Release(&ptr);
+  }
+};
+
+using RealTPtr = std::unique_ptr<Real_t[], FancyDeleter>;
+
+RealTPtr dvdx;
+RealTPtr dvdy;
+RealTPtr dvdz;
+RealTPtr x8n;
+RealTPtr y8n;
+RealTPtr z8n;
+
+void allocateGlobals(Domain* domain) {
+  Index_t numElem = domain.numElem();
+  Index_t numElem8 = domain.numElem * 8;
+
+  dvdx = Allocate<Real_t>(numElem8);
+  dvdy = Allocate<Real_t>(numElem8);
+  dvdz = Allocate<Real_t>(numElem8);
+  x8n = Allocate<Real_t>(numElem8);
+  y8n = Allocate<Real_t>(numElem8);
+  z8n = Allocate<Real_t>(numElem8);
+}
+#endif
+
 static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
                                                 Real_t hgcoef) {
   Index_t numElem = domain.numElem();
   Index_t numElem8 = numElem * 8;
+#ifndef LULESH_ALLOCATE_EXP
   Real_t *dvdx = Allocate<Real_t>(numElem8);
   Real_t *dvdy = Allocate<Real_t>(numElem8);
   Real_t *dvdz = Allocate<Real_t>(numElem8);
   Real_t *x8n = Allocate<Real_t>(numElem8);
   Real_t *y8n = Allocate<Real_t>(numElem8);
   Real_t *z8n = Allocate<Real_t>(numElem8);
+#endif
 
   Domain* domain_ptr = &domain;
   /* start loop over elements */
@@ -2352,6 +2383,10 @@ int main(int argc, char *argv[]) {
 #else
   locDom = new Domain(numRanks, col, row, plane, opts.nx, side, opts.numReg,
                       opts.balance, opts.cost);
+#endif
+
+#ifdef LULESH_ALLOCATE_EXP
+  allocateGlobals(locDom);
 #endif
 
 #ifdef USE_CUDA
