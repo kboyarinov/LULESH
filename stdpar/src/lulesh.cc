@@ -887,25 +887,25 @@ struct FancyDeleter {
   }
 };
 
-using RealTPtr = std::unique_ptr<Real_t[], FancyDeleter>;
+using RealTPtr = std::unique_ptr<Real_t, FancyDeleter>;
 
-RealTPtr dvdx;
-RealTPtr dvdy;
-RealTPtr dvdz;
-RealTPtr x8n;
-RealTPtr y8n;
-RealTPtr z8n;
+RealTPtr dvdx_g;
+RealTPtr dvdy_g;
+RealTPtr dvdz_g;
+RealTPtr x8n_g;
+RealTPtr y8n_g;
+RealTPtr z8n_g;
 
 void allocateGlobals(Domain* domain) {
-  Index_t numElem = domain.numElem();
-  Index_t numElem8 = domain.numElem * 8;
+  Index_t numElem = domain->numElem();
+  Index_t numElem8 = numElem * 8;
 
-  dvdx = Allocate<Real_t>(numElem8);
-  dvdy = Allocate<Real_t>(numElem8);
-  dvdz = Allocate<Real_t>(numElem8);
-  x8n = Allocate<Real_t>(numElem8);
-  y8n = Allocate<Real_t>(numElem8);
-  z8n = Allocate<Real_t>(numElem8);
+  dvdx_g.reset(Allocate<Real_t>(numElem8));
+  dvdy_g.reset(Allocate<Real_t>(numElem8));
+  dvdz_g.reset(Allocate<Real_t>(numElem8));
+  x8n_g.reset(Allocate<Real_t>(numElem8));
+  y8n_g.reset(Allocate<Real_t>(numElem8));
+  z8n_g.reset(Allocate<Real_t>(numElem8));
 }
 #endif
 
@@ -920,6 +920,13 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
   Real_t *x8n = Allocate<Real_t>(numElem8);
   Real_t *y8n = Allocate<Real_t>(numElem8);
   Real_t *z8n = Allocate<Real_t>(numElem8);
+#else
+  Real_t *dvdx = dvdx_g.get();
+  Real_t *dvdy = dvdy_g.get();
+  Real_t *dvdz = dvdz_g.get();
+  Real_t *x8n = x8n_g.get();
+  Real_t *y8n = y8n_g.get();
+  Real_t *z8n = z8n_g.get();
 #endif
 
   Domain* domain_ptr = &domain;
@@ -959,12 +966,14 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
                                  dvdz, hgcoef, numElem, domain.numNode());
   }
 
+#ifndef LULESH_ALLOCATE_EXP
   Release(&z8n);
   Release(&y8n);
   Release(&x8n);
   Release(&dvdz);
   Release(&dvdy);
   Release(&dvdx);
+#endif
 
   return;
 }
