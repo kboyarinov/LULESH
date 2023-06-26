@@ -895,6 +895,11 @@ RealTPtr dvdz_g;
 RealTPtr x8n_g;
 RealTPtr y8n_g;
 RealTPtr z8n_g;
+RealTPtr sigxx_g;
+RealTPtr sigyy_g;
+RealTPtr sigzz_g;
+RealTPtr determ_g;
+RealTPtr vnewc_g;
 
 void allocateGlobals(Domain* domain) {
   Index_t numElem = domain->numElem();
@@ -903,9 +908,17 @@ void allocateGlobals(Domain* domain) {
   dvdx_g.reset(Allocate<Real_t>(numElem8));
   dvdy_g.reset(Allocate<Real_t>(numElem8));
   dvdz_g.reset(Allocate<Real_t>(numElem8));
+
   x8n_g.reset(Allocate<Real_t>(numElem8));
   y8n_g.reset(Allocate<Real_t>(numElem8));
   z8n_g.reset(Allocate<Real_t>(numElem8));
+
+  sigxx_g.reset(Allocate<Real_t>(numElem));
+  sigyy_g.reset(Allocate<Real_t>(numElem));
+  sigzz_g.reset(Allocate<Real_t>(numElem));
+
+  determ_g.reset(Allocate<Real_t>(numElem));
+  vnewc_g.reset(Allocate<Real_t>(numElem8));
 }
 #endif
 
@@ -984,10 +997,17 @@ static inline void CalcVolumeForceForElems(Domain &domain) {
   Index_t numElem = domain.numElem();
   if (numElem != 0) {
     Real_t hgcoef = domain.hgcoef();
+#ifndef LULESH_ALLOCATE_EXP
     Real_t *sigxx = Allocate<Real_t>(numElem);
     Real_t *sigyy = Allocate<Real_t>(numElem);
     Real_t *sigzz = Allocate<Real_t>(numElem);
     Real_t *determ = Allocate<Real_t>(numElem);
+#else
+    Real_t *sigxx = sigxx_g.get();
+    Real_t *sigyy = sigyy_g.get();
+    Real_t *sigzz = sigzz_g.get();
+    Real_t *determ = determ_g.get();
+#endif
 
     /* Sum contributions to total stress tensor */
     InitStressTermsForElems(domain, sigxx, sigyy, sigzz, numElem);
@@ -1005,10 +1025,12 @@ static inline void CalcVolumeForceForElems(Domain &domain) {
 
     CalcHourglassControlForElems(domain, determ, hgcoef);
 
+#ifndef LULESH_ALLOCATE_EXP
     Release(&determ);
     Release(&sigzz);
     Release(&sigyy);
     Release(&sigxx);
+#endif
   }
 }
 
@@ -2168,7 +2190,11 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
     /* Expose all of the variables needed for material evaluation */
     Real_t eosvmin = domain.eosvmin();
     Real_t eosvmax = domain.eosvmax();
+#ifndef LULESH_ALLOCATE_EXP
     Real_t *vnewc = Allocate<Real_t>(numElem);
+#else
+    Real_t *vnewc = vnewc_g.get();
+#endif
 
     std::copy(std::execution::par_unseq, domain.vnew_begin(), domain.vnew_end(),
               vnewc);
