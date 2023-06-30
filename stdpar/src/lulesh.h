@@ -106,7 +106,9 @@ inline real10 FABS(real10 arg) { return fabsl(arg) ; }
 /* might want to add access methods so that memory can be */
 /* better managed, as in luleshFT */
 
+#ifndef USE_ORIGINAL_COUNTING_ITERATOR
 #include <oneapi/dpl/iterator>
+#endif
 #ifdef LULESH_USE_SYCL_USM
 #include <sycl/sycl.hpp>
 #include <oneapi/dpl/execution>
@@ -720,72 +722,78 @@ void CommMonoQ(Domain& domain);
 void InitMeshDecomp(Int_t numRanks, Int_t myRank,
                     Int_t *col, Int_t *row, Int_t *plane, Int_t *side);
 
-// struct counting_iterator {
+#ifdef USE_ORIGINAL_COUNTING_ITERATOR
 
-// private:
-//   using self = counting_iterator;
+struct counting_iterator {
 
-// public:
-//   using value_type = Index_t;
-//   using difference_type = typename std::make_signed<Index_t>::type;
-//   using pointer = Index_t*;
-//   using reference = Index_t&;
-//   using iterator_category = std::random_access_iterator_tag;
+private:
+  using self = counting_iterator;
 
-//   counting_iterator() : value(0) { }
-//   explicit counting_iterator(value_type v) : value(v) { }
+public:
+  using value_type = Index_t;
+  using difference_type = typename std::make_signed<Index_t>::type;
+  using pointer = Index_t*;
+  using reference = Index_t&;
+  using iterator_category = std::random_access_iterator_tag;
 
-//   value_type operator*() const { return value; }
-//   value_type operator[](difference_type n) const { return value + n; }
+  counting_iterator() : value(0) { }
+  explicit counting_iterator(value_type v) : value(v) { }
 
-//   self& operator++() { ++value; return *this; }
-//   self operator++(int) {
-//     self result{value};
-//     ++value;
-//     return result;
-//   }
-//   self& operator--() { --value; return *this; }
-//   self operator--(int) {
-//     self result{value};
-//     --value;
-//     return result;
-//   }
-//   self& operator+=(difference_type n) { value += n; return *this; }
-//   self& operator-=(difference_type n) { value -= n; return *this; }
+  value_type operator*() const { return value; }
+  value_type operator[](difference_type n) const { return value + n; }
 
-//   friend self operator+(self const& i, difference_type n) {
-//     return self(i.value + n);
-//   }
-//   friend self operator+(difference_type n, self const& i) {
-//     return self(i.value + n);
-//   }
-//   friend difference_type operator-(self const& x, self const& y) {
-//     return x.value - y.value;
-//   }
-//   friend self operator-(self const& i, difference_type n) {
-//     return self(i.value - n);
-//   }
+  self& operator++() { ++value; return *this; }
+  self operator++(int) {
+    self result{value};
+    ++value;
+    return result;
+  }
+  self& operator--() { --value; return *this; }
+  self operator--(int) {
+    self result{value};
+    --value;
+    return result;
+  }
+  self& operator+=(difference_type n) { value += n; return *this; }
+  self& operator-=(difference_type n) { value -= n; return *this; }
 
-//   friend bool operator==(self const& x, self const& y) {
-//     return x.value == y.value;
-//   }
-//   friend bool operator!=(self const& x, self const& y) {
-//     return x.value != y.value;
-//   }
-//   friend bool operator<(self const& x, self const& y) {
-//     return x.value < y.value;
-//   }
-//   friend bool operator<=(self const& x, self const& y) {
-//     return x.value <= y.value;
-//   }
-//   friend bool operator>(self const& x, self const& y) {
-//     return x.value > y.value;
-//   }
-//   friend bool operator>=(self const& x, self const& y) {
-//     return x.value >= y.value;
-//   }
-// private:
-//   value_type value;
-// };
+  friend self operator+(self const& i, difference_type n) {
+    return self(i.value + n);
+  }
+  friend self operator+(difference_type n, self const& i) {
+    return self(i.value + n);
+  }
+  friend difference_type operator-(self const& x, self const& y) {
+    return x.value - y.value;
+  }
+  friend self operator-(self const& i, difference_type n) {
+    return self(i.value - n);
+  }
+
+  friend bool operator==(self const& x, self const& y) {
+    return x.value == y.value;
+  }
+  friend bool operator!=(self const& x, self const& y) {
+    return x.value != y.value;
+  }
+  friend bool operator<(self const& x, self const& y) {
+    return x.value < y.value;
+  }
+  friend bool operator<=(self const& x, self const& y) {
+    return x.value <= y.value;
+  }
+  friend bool operator>(self const& x, self const& y) {
+    return x.value > y.value;
+  }
+  friend bool operator>=(self const& x, self const& y) {
+    return x.value >= y.value;
+  }
+private:
+  value_type value;
+};
+
+#else
 
 using counting_iterator = oneapi::dpl::counting_iterator<Index_t>;
+
+#endif
