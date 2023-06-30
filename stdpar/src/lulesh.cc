@@ -172,7 +172,6 @@ Additional BSD Notice
 #include <cuda_profiler_api.h>
 #endif
 
-
 /* Work Routines */
 
 static inline void TimeIncrement(Domain &domain) {
@@ -268,6 +267,13 @@ static inline void CollectDomainNodesToElemNodes(Domain &domain,
   elemZ[7] = domain.z(nd7i);
 }
 
+#ifdef LULESH_MEASURE_EACH
+template <typename S, typename F>
+auto ms(const S& s, const F& f) {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(s - f).count();
+}
+#endif
+
 /******************************************/
 
 static inline void InitStressTermsForElems(Domain &domain, Real_t *sigxx,
@@ -278,10 +284,17 @@ static inline void InitStressTermsForElems(Domain &domain, Real_t *sigxx,
   //
 
   Domain* domain_ptr = &domain;
+#ifdef LULESH_MEASURE_EACH
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
   std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElem,
                   [=](Index_t i) {
                     sigxx[i] = sigyy[i] = sigzz[i] = -domain_ptr->p(i) - domain_ptr->q(i);
                   });
+#ifdef LULESH_MEASURE_EACH
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::cout << "std::for_each_n on the line 283 elapsed time: " << ms(start, finish) << std::endl;
+#endif
 }
 
 /******************************************/
