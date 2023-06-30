@@ -1120,6 +1120,9 @@ static inline void CalcVolumeForceForElems(Domain &domain) {
 /******************************************/
 
 static inline void CalcForceForNodes(Domain &domain) {
+#ifdef LULESH_MEASURE_MODULES
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
   Index_t numNode = domain.numNode();
 
   std::fill(std::execution::par_unseq, domain.fx_begin(), domain.fx_end(),
@@ -1129,8 +1132,20 @@ static inline void CalcForceForNodes(Domain &domain) {
   std::fill(std::execution::par_unseq, domain.fz_begin(), domain.fz_end(),
             Real_t(0.0));
 
+#ifdef LULESH_MEASURE_MODULES
+
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::cout << "\t\tCalcForceForNodes: fill module time: " << ms(start, finish) << " ms" << std::endl;
+  start = std::chrono::high_resolution_clock::now();
+#endif
+
   /* Calcforce calls partial, force, hourq */
   CalcVolumeForceForElems(domain);
+#ifdef LULESH_MEASURE_MODULES
+
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::cout << "\t\tCalcForceForNodes:CalcVolumeForceForElems module time: " << ms(start, finish) << " ms" << std::endl;
+#endif
 }
 
 /******************************************/
@@ -1245,37 +1260,9 @@ static inline void LagrangeNodal(Domain &domain) {
 #endif
 
   CalcAccelerationForNodes(domain, domain.numNode());
-
-#ifdef LULESH_MEASURE_MODULES
-  finish = std::chrono::high_resolution_clock::now();
-  std::cout << "\tCalcAccelerationForNodes module time: " << ms(start, finish) << " ms" << std::endl;
-  start = std::chrono::high_resolution_clock::now();
-#endif
-
   ApplyAccelerationBoundaryConditionsForNodes(domain);
-
-#ifdef LULESH_MEASURE_MODULES
-  finish = std::chrono::high_resolution_clock::now();
-  std::cout << "\tApplyAccelerationBoundaryConditionsForNodes module time: " << ms(start, finish) << " ms" << std::endl;
-  start = std::chrono::high_resolution_clock::now();
-#endif
-
   CalcVelocityForNodes(domain, delt, u_cut, domain.numNode());
-
-#ifdef LULESH_MEASURE_MODULES
-  finish = std::chrono::high_resolution_clock::now();
-  std::cout << "\t CalcVelocityForNodes module time: " << ms(start, finish) << " ms" << std::endl;
-  start = std::chrono::high_resolution_clock::now();
-#endif
-
   CalcPositionForNodes(domain, delt, domain.numNode());
-
-#ifdef LULESH_MEASURE_MODULES
-  finish = std::chrono::high_resolution_clock::now();
-  std::cout << "\t CalcPositionForNodes module time: " << ms(start, finish) << " ms" << std::endl;
-  start = std::chrono::high_resolution_clock::now();
-#endif
-
   return;
 }
 
