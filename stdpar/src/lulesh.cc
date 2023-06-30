@@ -270,7 +270,7 @@ static inline void CollectDomainNodesToElemNodes(Domain &domain,
 #ifdef LULESH_MEASURE_EACH
 template <typename S, typename F>
 auto ms(const S& s, const F& f) {
-  return std::chrono::duration_cast<std::chrono::milliseconds>(s - f).count();
+  return std::chrono::duration_cast<std::chrono::milliseconds>(f - s).count();
 }
 #endif
 
@@ -293,7 +293,7 @@ static inline void InitStressTermsForElems(Domain &domain, Real_t *sigxx,
                   });
 #ifdef LULESH_MEASURE_EACH
   auto finish = std::chrono::high_resolution_clock::now();
-  std::cout << "std::for_each_n on the line 283 elapsed time: " << ms(start, finish) << std::endl;
+  std::cout << "std::for_each_n on the line 283 elapsed time: " << ms(start, finish) << "ms problem size " << numElem << std::endl;
 #endif
 }
 
@@ -509,6 +509,10 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
 
   // loop over all elements
 
+#ifdef LULESH_MEASURE_EACH
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
+
   Domain* domain_ptr = &domain;
   std::for_each_n(
       std::execution::par_unseq, counting_iterator(0), numElem,
@@ -536,6 +540,13 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
                                     &fz_elem[k * 8]);
       });
 
+#ifdef LULESH_MEASURE_EACH
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::cout << "std::for_each_n on the line 517 elapsed time: " << ms(start, finish) << "ms problem size " << numElem << std::endl;
+
+  start = std::chrono::high_resolution_clock::now();
+#endif
+
   // If threaded, then we need to copy the data out of the temporary
   // arrays used above into the final forces field
   std::for_each_n(std::execution::par_unseq, counting_iterator(0), numNode,
@@ -555,6 +566,11 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
                     domain_ptr->fy(gnode) = fy_tmp;
                     domain_ptr->fz(gnode) = fz_tmp;
                   });
+
+#ifdef LULESH_MEASURE_EACH
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::cout << "std::for_each_n on the line 552 elapsed time: " << ms(start, finish) << "ms problem size " << numElem << std::endl;
+#endif
 }
 
 /******************************************/
