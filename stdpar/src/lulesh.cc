@@ -2469,7 +2469,7 @@ static inline void LagrangeLeapFrog(Domain &domain) {
 
 #ifdef LULESH_MEASURE_MODULES
   auto finish = std::chrono::high_resolution_clock::now();
-  std::cout << "LagrangeNodal module time: " << measure(start, finish) << " ms" << std::endl;
+  std::cout << "LagrangeNodal module time: " << ms(start, finish) << " ms" << std::endl;
   start = std::chrono::high_resolution_clock()::now();
 #endif
 
@@ -2482,7 +2482,7 @@ static inline void LagrangeLeapFrog(Domain &domain) {
 
 #ifdef LULESH_MEASURE_MODULES
   finish = std::chrono::high_resolution_clock::now();
-  std::cout << "LagrangeElements module time: " << measure(start, finish) << " ms" << std::endl;
+  std::cout << "LagrangeElements module time: " << ms(start, finish) << " ms" << std::endl;
   start = std::chrono::high_resolution_clock()::now();
 #endif
 
@@ -2490,7 +2490,7 @@ static inline void LagrangeLeapFrog(Domain &domain) {
 
 #ifdef LULESH_MEASURE_MODULES
   finish = std::chrono::high_resolution_clock::now();
-  std::cout << "CalcTimeConstraintsForElem module time: " << measure(start, finish) << " ms" << std::endl;
+  std::cout << "CalcTimeConstraintsForElem module time: " << ms(start, finish) << " ms" << std::endl;
   start = std::chrono::high_resolution_clock()::now();
 #endif
 }
