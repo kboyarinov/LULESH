@@ -267,7 +267,7 @@ static inline void CollectDomainNodesToElemNodes(Domain &domain,
   elemZ[7] = domain.z(nd7i);
 }
 
-#ifdef LULESH_MEASURE_EACH
+#if defined(LULESH_MEASURE_EACH) || defined(LULESH_MEASURE_MODULES)
 template <typename S, typename F>
 auto ms(const S& s, const F& f) {
   return std::chrono::duration_cast<std::chrono::milliseconds>(f - s).count();
@@ -2470,7 +2470,7 @@ static inline void LagrangeLeapFrog(Domain &domain) {
 #ifdef LULESH_MEASURE_MODULES
   auto finish = std::chrono::high_resolution_clock::now();
   std::cout << "LagrangeNodal module time: " << ms(start, finish) << " ms" << std::endl;
-  start = std::chrono::high_resolution_clock()::now();
+  start = std::chrono::high_resolution_clock::now();
 #endif
 
 #ifdef SEDOV_SYNC_POS_VEL_LATE
@@ -2483,7 +2483,7 @@ static inline void LagrangeLeapFrog(Domain &domain) {
 #ifdef LULESH_MEASURE_MODULES
   finish = std::chrono::high_resolution_clock::now();
   std::cout << "LagrangeElements module time: " << ms(start, finish) << " ms" << std::endl;
-  start = std::chrono::high_resolution_clock()::now();
+  start = std::chrono::high_resolution_clock::now();
 #endif
 
   CalcTimeConstraintsForElems(domain);
@@ -2491,7 +2491,7 @@ static inline void LagrangeLeapFrog(Domain &domain) {
 #ifdef LULESH_MEASURE_MODULES
   finish = std::chrono::high_resolution_clock::now();
   std::cout << "CalcTimeConstraintsForElem module time: " << ms(start, finish) << " ms" << std::endl;
-  start = std::chrono::high_resolution_clock()::now();
+  start = std::chrono::high_resolution_clock::now();
 #endif
 }
 
