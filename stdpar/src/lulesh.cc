@@ -568,7 +568,7 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
                   });
 
 #ifdef LULESH_MEASURE_EACH
-  auto finish = std::chrono::high_resolution_clock::now();
+  finish = std::chrono::high_resolution_clock::now();
   std::cout << "std::for_each_n on the line 552 elapsed time: " << ms(start, finish) << "ms problem size " << numElem << std::endl;
 #endif
 }
@@ -2461,7 +2461,17 @@ static inline void LagrangeLeapFrog(Domain &domain) {
 
   /* calculate nodal forces, accelerations, velocities, positions, with
    * applied boundary conditions and slide surface considerations */
+#ifdef LULESH_MEASURE_MODULES
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
+
   LagrangeNodal(domain);
+
+#ifdef LULESH_MEASURE_MODULES
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::cout << "LagrangeNodal module time: " << measure(start, finish) << " ms" << std::endl;
+  start = std::chrono::high_resolution_clock()::now();
+#endif
 
 #ifdef SEDOV_SYNC_POS_VEL_LATE
 #endif
@@ -2470,7 +2480,19 @@ static inline void LagrangeLeapFrog(Domain &domain) {
    * material states */
   LagrangeElements(domain, domain.numElem());
 
+#ifdef LULESH_MEASURE_MODULES
+  finish = std::chrono::high_resolution_clock::now();
+  std::cout << "LagrangeElements module time: " << measure(start, finish) << " ms" << std::endl;
+  start = std::chrono::high_resolution_clock()::now();
+#endif
+
   CalcTimeConstraintsForElems(domain);
+
+#ifdef LULESH_MEASURE_MODULES
+  finish = std::chrono::high_resolution_clock::now();
+  std::cout << "CalcTimeConstraintsForElem module time: " << measure(start, finish) << " ms" << std::endl;
+  start = std::chrono::high_resolution_clock()::now();
+#endif
 }
 
 /******************************************/
