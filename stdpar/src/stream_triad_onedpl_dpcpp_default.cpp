@@ -26,9 +26,9 @@ void measure(const Body& body) {
 int main() {
     std::size_t n = 30000000;
 
-    float* a = sycl::malloc_shared<float>(n, gpu_queue);
-    float* b = sycl::malloc_shared<float>(n, gpu_queue);
-    float* c = sycl::malloc_shared<float>(n, gpu_queue);
+    float* a = sycl::malloc_shared<float>(n, oneapi::dpl::execution::dpcpp_default.queue());
+    float* b = sycl::malloc_shared<float>(n, oneapi::dpl::execution::dpcpp_default.queue());
+    float* c = sycl::malloc_shared<float>(n, oneapi::dpl::execution::dpcpp_default.queue());
 
     float scalar = 42.f;
 
@@ -50,7 +50,7 @@ int main() {
 
     measure(stream_triad_body);
 
-    sycl::free(c, gpu_queue);
-    sycl::free(b, gpu_queue);
-    sycl::free(a, gpu_queue);
+    sycl::free(c, oneapi::dpl::execution::dpcpp_default.queue());
+    sycl::free(b, oneapi::dpl::execution::dpcpp_default.queue());
+    sycl::free(a, oneapi::dpl::execution::dpcpp_default.queue());
 }
