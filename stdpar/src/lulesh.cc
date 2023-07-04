@@ -975,9 +975,9 @@ void allocateGlobals(Domain* domain) {
   }
 
   Int_t allElem = numElem +                             /* local elem */
-                    2 * domain.sizeX() * domain.sizeY() + /* plane ghosts */
-                    2 * domain.sizeX() * domain.sizeZ() + /* row ghosts */
-                    2 * domain.sizeY() * domain.sizeZ();  /* col ghosts */
+                    2 * domain->sizeX() * domain->sizeY() + /* plane ghosts */
+                    2 * domain->sizeX() * domain->sizeZ() + /* row ghosts */
+                    2 * domain.sizeY() * domain->sizeZ();  /* col ghosts */
   domain->AllocateGradients(numElem, allElem);
   domain->AllocateStrains(numElem);
 }
