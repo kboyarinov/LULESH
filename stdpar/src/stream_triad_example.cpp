@@ -1,4 +1,5 @@
 #include <oneapi/dpl/iterator>
+#include <oneapi/dpl/execution>
 
 #include <new>
 #include <random>
@@ -49,6 +50,11 @@ int main() {
                        [=](std::size_t index) {
                            return b[index] + c[index] * scalar;
                        });
+        if (!std::all_of(std::execution::par_unseq, oneapi::dpl::counting_iterator<std::size_t>(0), oneapi::dpl::counting_iterator<std::size_t>(n),
+                         [](std::size_t index) {
+                            return a[index] == b[index] + c[index] * scalar;
+                         }))
+            throw "Incorrect result"
     };
 
     measure(stream_triad_body);
