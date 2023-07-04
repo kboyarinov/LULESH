@@ -19,10 +19,10 @@ void measure(const Body& body) {
         auto start = std::chrono::high_resolution_clock::now();
         body();
         auto finish = std::chrono::high_resolution_clock::now();
-        times.emplace_back(std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count());
+        times.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count());
     }
     std::sort(times.begin(), times.end());
-    std::cout << "Elapsed time (median): " << times[n_times / 2] << std::endl;
+    std::cout << "Elapsed time (median): " << times[n_times / 2] << " mcs" << std::endl;
 }
 
 int main() {
