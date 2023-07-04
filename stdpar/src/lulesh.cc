@@ -973,6 +973,19 @@ void allocateGlobals(Domain* domain) {
     pbvcs_g[r].reset(Allocate<Real_t>(regElemSize));
     pHalfSteps_g[r].reset(Allocate<Real_t>(regElemSize));
   }
+
+  Int_t allElem = numElem +                             /* local elem */
+                    2 * domain.sizeX() * domain.sizeY() + /* plane ghosts */
+                    2 * domain.sizeX() * domain.sizeZ() + /* row ghosts */
+                    2 * domain.sizeY() * domain.sizeZ();  /* col ghosts */
+  domain->AllocateGradients(numElem, allElem);
+  domain->AllocateStrains(numElem);
+}
+
+
+void deallocateGlobals(Domain* domain) {
+  domain->DeallocateStrains();
+  domain->DeallocateGradients();
 }
 #endif
 
@@ -1479,7 +1492,9 @@ static inline void CalcLagrangeElements(Domain &domain) {
   if (numElem > 0) {
     const Real_t deltatime = domain.deltatime();
 
+#ifndef LULESH_ALLOCATE_EXP
     domain.AllocateStrains(numElem);
+#endif
 
     CalcKinematicsForElems(domain, deltatime, numElem);
 
@@ -1504,7 +1519,9 @@ static inline void CalcLagrangeElements(Domain &domain) {
                     [](Real_t vnew) { return vnew <= Real_t(0.0); })) {
       exit(VolumeError);
     }
+#ifndef LULESH_ALLOCATE_EXP
     domain.DeallocateStrains();
+#endif
   }
 }
 
@@ -1914,15 +1931,19 @@ static inline void CalcQForElems(Domain &domain) {
                     2 * domain.sizeX() * domain.sizeZ() + /* row ghosts */
                     2 * domain.sizeY() * domain.sizeZ();  /* col ghosts */
 
+#ifndef LULESH_ALLOCATE_EXP
     domain.AllocateGradients(numElem, allElem);
+#endif
 
     /* Calculate velocity gradients */
     CalcMonotonicQGradientsForElems(domain);
 
     CalcMonotonicQForElems(domain);
 
+#ifndef LULESH_ALLOCATE_EXP
     // Free up memory
     domain.DeallocateGradients();
+#endif
 
     /* Don't allow excessive artificial viscosity */
     Index_t idx = -1;
