@@ -42,19 +42,39 @@ int main() {
     float scalar = 42.f;
 
     auto stream_triad_body = [=, &generator]() {
+#ifdef MEASURE_EACH
+        auto start = std::chrono::high_resolution_clock::now();
+#endif
         std::fill(std::execution::par_unseq, a, a + n, 0.f);
         std::fill(std::execution::par_unseq, b, b + n, 42.f);
         std::fill(std::execution::par_unseq, c, c + n, 43.f);
+#ifdef MEASURE_EACH
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::cout << "Fill block " << std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count() << std::endl;
+        start = std::chrono::high_resolution_clock::now();
+#endif
+
 
         std::transform(std::execution::par_unseq, oneapi::dpl::counting_iterator<std::size_t>(0), oneapi::dpl::counting_iterator<std::size_t>(n), a,
                        [=](std::size_t index) {
                            return b[index] + c[index] * scalar;
                        });
+
+#ifdef MEASURE_EACH
+        finish = std::chrono::high_resolution_clock::now();
+        std::cout << "Transform " << std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count() << std::endl;
+        start = std::chrono::high_resolution_clock::now();
+#endif
+
         if (!std::all_of(std::execution::par_unseq, oneapi::dpl::counting_iterator<std::size_t>(0), oneapi::dpl::counting_iterator<std::size_t>(n),
                          [=](std::size_t index) {
                             return a[index] == b[index] + c[index] * scalar;
                          }))
             throw "Incorrect result";
+#ifdef MEASURE_EACH
+        finish = std::chrono::high_resolution_clock::now();
+        std::cout << "all_of " << std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count() << std::endl;
+#endif
     };
 
     measure(stream_triad_body);

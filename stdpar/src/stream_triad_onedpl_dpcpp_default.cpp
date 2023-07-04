@@ -33,19 +33,38 @@ int main() {
     float scalar = 42.f;
 
     auto stream_triad_body = [=]() {
+#ifdef MEASURE_EACH
+        auto start = std::chrono::high_resolution_clock::now();
+#endif
         oneapi::dpl::fill(oneapi::dpl::execution::dpcpp_default, a, a + n, 0.f);
         oneapi::dpl::fill(oneapi::dpl::execution::dpcpp_default, b, b + n, 42.f);
         oneapi::dpl::fill(oneapi::dpl::execution::dpcpp_default, c, c + n, 43.f);
+#ifdef MEASURE_EACH
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::cout << "Fill block " << std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count() << std::endl;
+        start = std::chrono::high_resolution_clock::now();
+#endif
 
         oneapi::dpl::transform(oneapi::dpl::execution::dpcpp_default, oneapi::dpl::counting_iterator<std::size_t>(0), oneapi::dpl::counting_iterator<std::size_t>(n), a,
                        [=](std::size_t index) {
                            return b[index] + c[index] * scalar;
                        });
+
+#ifdef MEASURE_EACH
+        finish = std::chrono::high_resolution_clock::now();
+        std::cout << "Transform " << std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count() << std::endl;
+        start = std::chrono::high_resolution_clock::now();
+#endif
+
         if (!oneapi::dpl::all_of(oneapi::dpl::execution::dpcpp_default, oneapi::dpl::counting_iterator<std::size_t>(0), oneapi::dpl::counting_iterator<std::size_t>(n),
                          [=](std::size_t index) {
                             return a[index] == b[index] + c[index] * scalar;
                          }))
             throw "Incorrect result";
+#ifdef MEASURE_EACH
+        finish = std::chrono::high_resolution_clock::now();
+        std::cout << "all_of " << std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count() << std::endl;
+#endif
     };
 
     measure(stream_triad_body);
