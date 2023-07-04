@@ -42,19 +42,19 @@ int main() {
     float scalar = 42.f;
 
     auto stream_triad_body = [=, &generator]() {
-        std::generate(std::execution::par_unseq, b, b + n, generator);
-        std::generate(std::execution::par_unseq, c, c + n, generator);
         std::fill(std::execution::par_unseq, a, a + n, 0.f);
+        std::fill(std::execution::par_unseq, b, b + n, 42.f);
+        std::fill(std::execution::par_unseq, c, c + n, 43.f);
 
         std::transform(std::execution::par_unseq, oneapi::dpl::counting_iterator<std::size_t>(0), oneapi::dpl::counting_iterator<std::size_t>(n), a,
                        [=](std::size_t index) {
                            return b[index] + c[index] * scalar;
                        });
         if (!std::all_of(std::execution::par_unseq, oneapi::dpl::counting_iterator<std::size_t>(0), oneapi::dpl::counting_iterator<std::size_t>(n),
-                         [](std::size_t index) {
+                         [=](std::size_t index) {
                             return a[index] == b[index] + c[index] * scalar;
                          }))
-            throw "Incorrect result"
+            throw "Incorrect result";
     };
 
     measure(stream_triad_body);
