@@ -122,7 +122,8 @@ T *Allocate(size_t size)
 #ifdef LULESH_USE_SYCL_USM
    return static_cast<T *>(sycl::malloc_shared(sizeof(T) * size, oneapi::dpl::execution::dpcpp_default.queue()));
 #else
-   return static_cast<T *>(malloc(sizeof(T)*size)) ;
+   // return static_cast<T *>(malloc(sizeof(T)*size)) ;
+   return static_cast<T*>(::operator new(sizeof(T) * size));
 #endif
 }
 
@@ -134,7 +135,8 @@ void Release(T **ptr)
 #ifdef LULESH_USE_SYCL_USM
       sycl::free(*ptr, oneapi::dpl::execution::dpcpp_default.queue());
 #else
-      free(*ptr) ;
+      // free(*ptr) ;
+      ::operator delete(*ptr);
 #endif
 
       *ptr = NULL ;
