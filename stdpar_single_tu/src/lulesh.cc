@@ -961,21 +961,21 @@ void allocateGlobals(Domain* domain) {
 
   for (std::size_t r = 0; r < numReg; ++r) {
     Index_t regElemSize = domain->regElemSize(r);
-    ::new(e_olds_g[r]) RealTPtr(nullptr);
-    ::new(delvcs_g[r]) RealTPtr(nullptr);
-    ::new(p_olds_g[r]) RealTPtr(nullptr);
-    ::new(q_olds_g[r]) RealTPtr(nullptr);
-    ::new(compressions_g[r]) RealTPtr(nullptr);
-    ::new(compHalfSteps_g[r]) RealTPtr(nullptr);
-    ::new(qq_olds_g[r]) RealTPtr(nullptr);
-    ::new(ql_olds_g[r]) RealTPtr(nullptr);
-    ::new(works_g[r]) RealTPtr(nullptr);
-    ::new(p_news_g[r]) RealTPtr(nullptr);
-    ::new(e_news_g[r]) RealTPtr(nullptr);
-    ::new(q_news_g[r]) RealTPtr(nullptr);
-    ::new(bvcs_g[r]) RealTPtr(nullptr);
-    ::new(pbvcs_g[r]) RealTPtr(nullptr);
-    ::new(pHalfSteps_g[r]) RealTPtr(nullptr);
+    ::new(&e_olds_g[r]) RealTPtr(nullptr);
+    ::new(&delvcs_g[r]) RealTPtr(nullptr);
+    ::new(&p_olds_g[r]) RealTPtr(nullptr);
+    ::new(&q_olds_g[r]) RealTPtr(nullptr);
+    ::new(&compressions_g[r]) RealTPtr(nullptr);
+    ::new(&compHalfSteps_g[r]) RealTPtr(nullptr);
+    ::new(&qq_olds_g[r]) RealTPtr(nullptr);
+    ::new(&ql_olds_g[r]) RealTPtr(nullptr);
+    ::new(&works_g[r]) RealTPtr(nullptr);
+    ::new(&p_news_g[r]) RealTPtr(nullptr);
+    ::new(&e_news_g[r]) RealTPtr(nullptr);
+    ::new(&q_news_g[r]) RealTPtr(nullptr);
+    ::new(&bvcs_g[r]) RealTPtr(nullptr);
+    ::new(&pbvcs_g[r]) RealTPtr(nullptr);
+    ::new(&pHalfSteps_g[r]) RealTPtr(nullptr);
 
     e_olds_g[r].reset(Allocate<Real_t>(regElemSize));
     delvcs_g[r].reset(Allocate<Real_t>(regElemSize));
