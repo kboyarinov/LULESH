@@ -1007,6 +1007,8 @@ void deallocateGlobals(Domain* domain) {
   domain->DeallocateStrains();
   domain->DeallocateGradients();
 
+  Index_t numReg = domain->numReg();
+
   for (std::size_t r = 0; r < numReg; ++r) {
     Index_t regElemSize = domain->regElemSize(r);
 
