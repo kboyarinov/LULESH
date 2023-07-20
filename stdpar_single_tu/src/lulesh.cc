@@ -961,6 +961,22 @@ void allocateGlobals(Domain* domain) {
 
   for (std::size_t r = 0; r < numReg; ++r) {
     Index_t regElemSize = domain->regElemSize(r);
+    ::new(e_olds_g[r]) RealTPtr(nullptr);
+    ::new(delvcs_g[r]) RealTPtr(nullptr);
+    ::new(p_olds_g[r]) RealTPtr(nullptr);
+    ::new(q_olds_g[r]) RealTPtr(nullptr);
+    ::new(compressions_g[r]) RealTPtr(nullptr);
+    ::new(compHalfSteps_g[r]) RealTPtr(nullptr);
+    ::new(qq_olds_g[r]) RealTPtr(nullptr);
+    ::new(ql_olds_g[r]) RealTPtr(nullptr);
+    ::new(works_g[r]) RealTPtr(nullptr);
+    ::new(p_news_g[r]) RealTPtr(nullptr);
+    ::new(e_news_g[r]) RealTPtr(nullptr);
+    ::new(q_news_g[r]) RealTPtr(nullptr);
+    ::new(bvcs_g[r]) RealTPtr(nullptr);
+    ::new(pbvcs_g[r]) RealTPtr(nullptr);
+    ::new(pHalfSteps_g[r]) RealTPtr(nullptr);
+
     e_olds_g[r].reset(Allocate<Real_t>(regElemSize));
     delvcs_g[r].reset(Allocate<Real_t>(regElemSize));
     p_olds_g[r].reset(Allocate<Real_t>(regElemSize));
@@ -990,6 +1006,26 @@ void allocateGlobals(Domain* domain) {
 void deallocateGlobals(Domain* domain) {
   domain->DeallocateStrains();
   domain->DeallocateGradients();
+
+  for (std::size_t r = 0; r < numReg; ++r) {
+    Index_t regElemSize = domain->regElemSize(r);
+
+    e_olds_g[r].~RealTPtr();
+    delvcs_g[r].~RealTPtr();
+    p_olds_g[r].~RealTPtr();
+    q_olds_g[r].~RealTPtr();
+    compressions_g[r].~RealTPtr();
+    compHalfSteps_g[r].~RealTPtr();
+    qq_olds_g[r].~RealTPtr();
+    ql_olds_g[r].~RealTPtr();
+    works_g[r].~RealTPtr();
+    p_news_g[r].~RealTPtr();
+    e_news_g[r].~RealTPtr();
+    q_news_g[r].~RealTPtr();
+    bvcs_g[r].~RealTPtr();
+    pbvcs_g[r].~RealTPtr();
+    pHalfSteps_g[r].~RealTPtr();
+  }
 }
 #endif
 
