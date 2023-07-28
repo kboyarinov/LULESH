@@ -1,3 +1,0 @@
-/mnt/c/git/kboyarinov/LULESH/stdpar/src/build/CMakeFiles/lulesh.dir
-/mnt/c/git/kboyarinov/LULESH/stdpar/src/build/CMakeFiles/edit_cache.dir
-/mnt/c/git/kboyarinov/LULESH/stdpar/src/build/CMakeFiles/rebuild_cache.dir
