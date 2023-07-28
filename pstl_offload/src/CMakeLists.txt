@@ -49,6 +49,6 @@ if(LULESH_ALLOC_CHANGE)
     add_compile_options(-DLULESH_ALLOCATE_EXP)
 endif()
 
-include_directories(${DPL_PATH/include})
+include_directories(${DPL_PATH}/include)
 
 add_executable(lulesh lulesh.cc lulesh-comm.cc lulesh-viz.cc lulesh-util.cc lulesh-init.cc)

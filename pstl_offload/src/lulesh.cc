@@ -2608,7 +2608,7 @@ int main(int argc, char *argv[]) {
   }
 
 #ifdef LULESH_ALLOCATE_EXP
-  deallocateGlobals();
+  deallocateGlobals(locDom);
 #endif
 
 #ifdef LULESH_USE_SYCL_USM
