@@ -27,7 +27,7 @@ if(NOT DEFINED LULESH_ALLOC_CHANGE)
 endif()
 
 add_compile_options(-fsycl -O3 -w -DUSE_MPI=0)
-add_link_options(-fsycl -w -ltbb)
+add_link_options(-fsycl -w)
 
 if(ENABLE_AOT)
     add_compile_options(-fsycl-targets=spir64 -Xs "-device pvc")
@@ -35,7 +35,7 @@ endif()
 
 if(ENABLE_PSTL_OFFLOAD)
     include_directories(${DPL_PATH}/include/pstl_offload)
-    add_compile_options(-DPSTL_OFFLOAD -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast)
+    add_compile_options(-D__SYCL_PSTL_OFFLOAD__=1 -fsycl-unnamed-lambda -cl-mad-enable -ffp-contract=fast)
     if(NOT LULESH_USE_SYCL_USM)
         add_link_options(-lpstloffload)
     endif()
