@@ -156,15 +156,10 @@ Additional BSD Notice
 #include <vector>
 
 
-#ifdef LULESH_USE_SYCL_USM 
 #include <oneapi/dpl/algorithm>
 #include <oneapi/dpl/execution>
 #include <oneapi/dpl/numeric>
-#else
-#include <algorithm>
-#include <execution>
-#include <numeric>
-#endif
+namespace algo = oneapi::dpl;
 
 #if _OPENMP
 #include <omp.h>
@@ -181,14 +176,13 @@ Additional BSD Notice
 
 #ifdef LULESH_USE_SYCL_USM
 inline auto exec_policy = oneapi::dpl::execution::dpcpp_default;
-namespace algo = oneapi::dpl;
+// namespace algo = oneapi::dpl;
 #else // LULESH_USE_SYCL_USM
 #ifdef LULESH_USE_PARALLEL_EXECUTION
-inline constexpr auto exec_policy = std::execution::par_unseq;
+inline constexpr auto exec_policy = oneapi::dpl::execution::par_unseq;
 #else // LULESH_USE_PARALLEL_EXECUTION
-inline constexpr auto exec_policy = std::execution::seq;
+// inline constexpr auto exec_policy = std::execution::seq;
 #endif // LULESH_USE_PARALLEL_EXECUTION
-namespace algo = std;
 #endif // LULESH_USE_SYCL_USM
 
 /* Work Routines */
@@ -2020,13 +2014,13 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
                                         Real_t eosvmax, Index_t length,
                                         Index_t *regElemList) {
   constexpr Real_t cls = Real_t(2.0) / Real_t(3.0);
-  algo::transform(exec_policy, compression, compression + length, bvc,
+  dpl::transform(dpl::execution::par_unseq, compression, compression + length, bvc,
                  [=](Real_t compression_i) {
                    return cls * (compression_i + Real_t(1.0));
                  });
-  algo::fill(exec_policy, pbvc, pbvc + length, cls);
+  dpl::fill(dpl::execution::par_unseq, pbvc, pbvc + length, cls);
 
-  algo::for_each_n(exec_policy, counting_iterator(0), length, [=](Index_t i) {
+  dpl::for_each_n(dpl::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
         Real_t newval = bvc[i] * e_old[i];
         if (std::fabs(newval) < p_cut || vnewc[regElemList[i]] >= eosvmax) {
           newval = Real_t(0.0);
@@ -2533,22 +2527,22 @@ int main(int argc, char *argv[]) {
   ParseCommandLineOptions(argc, argv, myRank, &opts);
 
   if ((myRank == 0) && (opts.quiet == 0)) {
-    std::cout << "Running problem size " << opts.nx
-              << "^3 per domain until completion\n";
-    std::cout << "Num processors: " << numRanks << "\n";
-#if _OPENMP
-    std::cout << "Num threads: " << omp_get_max_threads() << "\n";
-#endif
-    std::cout << "Total number of elements: "
-              << ((Int8_t)numRanks * opts.nx * opts.nx * opts.nx) << " \n\n";
-    std::cout << "To run other sizes, use -s <integer>.\n";
-    std::cout << "To run a fixed number of iterations, use -i <integer>.\n";
-    std::cout
-        << "To run a more or less balanced region set, use -b <integer>.\n";
-    std::cout << "To change the relative costs of regions, use -c <integer>.\n";
-    std::cout << "To print out progress, use -p\n";
-    std::cout << "To write an output file for VisIt, use -v\n";
-    std::cout << "See help (-h) for more options\n\n";
+//     std::cout << "Running problem size " << opts.nx
+//               << "^3 per domain until completion\n";
+//     std::cout << "Num processors: " << numRanks << "\n";
+// #if _OPENMP
+//     std::cout << "Num threads: " << omp_get_max_threads() << "\n";
+// #endif
+//     std::cout << "Total number of elements: "
+//               << ((Int8_t)numRanks * opts.nx * opts.nx * opts.nx) << " \n\n";
+//     std::cout << "To run other sizes, use -s <integer>.\n";
+//     std::cout << "To run a fixed number of iterations, use -i <integer>.\n";
+//     std::cout
+//         << "To run a more or less balanced region set, use -b <integer>.\n";
+//     std::cout << "To change the relative costs of regions, use -c <integer>.\n";
+//     std::cout << "To print out progress, use -p\n";
+//     std::cout << "To write an output file for VisIt, use -v\n";
+//     std::cout << "See help (-h) for more options\n\n";
   }
 
   // Set up the mesh and decompose. Assumes regular cubes for now
