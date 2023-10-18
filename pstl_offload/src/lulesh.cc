@@ -156,10 +156,15 @@ Additional BSD Notice
 #include <vector>
 
 
+#ifndef LULESH_USE_PSTL_OFFLOAD
 #include <oneapi/dpl/algorithm>
 #include <oneapi/dpl/execution>
 #include <oneapi/dpl/numeric>
-namespace algo = oneapi::dpl;
+#else
+#include <algorithm>
+#include <execution>
+#include <numeric>
+#endif
 
 #if _OPENMP
 #include <omp.h>
@@ -176,13 +181,13 @@ namespace algo = oneapi::dpl;
 
 #ifdef LULESH_USE_SYCL_USM
 inline auto exec_policy = oneapi::dpl::execution::dpcpp_default;
-// namespace algo = oneapi::dpl;
-#else // LULESH_USE_SYCL_USM
-#ifdef LULESH_USE_PARALLEL_EXECUTION
-inline constexpr auto exec_policy = oneapi::dpl::execution::par_unseq;
+namespace algo = oneapi::dpl;
+#elif defined(LULESH_USE_PSTL_OFFLOAD)
+namespace algo = std;
+inline constexpr auto exec_policy = std::execution::par_unseq;
 #else // LULESH_USE_PARALLEL_EXECUTION
-// inline constexpr auto exec_policy = std::execution::seq;
-#endif // LULESH_USE_PARALLEL_EXECUTION
+inline auto exec_policy = oneapi::dpl::execution::par_unseq;
+namespace algo = oneapi::dpl;
 #endif // LULESH_USE_SYCL_USM
 
 /* Work Routines */
@@ -2014,13 +2019,13 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
                                         Real_t eosvmax, Index_t length,
                                         Index_t *regElemList) {
   constexpr Real_t cls = Real_t(2.0) / Real_t(3.0);
-  dpl::transform(dpl::execution::par_unseq, compression, compression + length, bvc,
+  algo::transform(exec_policy, compression, compression + length, bvc,
                  [=](Real_t compression_i) {
                    return cls * (compression_i + Real_t(1.0));
                  });
-  dpl::fill(dpl::execution::par_unseq, pbvc, pbvc + length, cls);
+  algo::fill(exec_policy, pbvc, pbvc + length, cls);
 
-  dpl::for_each_n(dpl::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+  algo::for_each_n(exec_policy, counting_iterator(0), length, [=](Index_t i) {
         Real_t newval = bvc[i] * e_old[i];
         if (std::fabs(newval) < p_cut || vnewc[regElemList[i]] >= eosvmax) {
           newval = Real_t(0.0);
