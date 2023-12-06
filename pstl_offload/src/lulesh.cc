@@ -155,9 +155,16 @@ Additional BSD Notice
 #include <unistd.h>
 #include <vector>
 
+
+#ifndef LULESH_USE_PSTL_OFFLOAD
+#include <oneapi/dpl/algorithm>
+#include <oneapi/dpl/execution>
+#include <oneapi/dpl/numeric>
+#else
 #include <algorithm>
 #include <execution>
 #include <numeric>
+#endif
 
 #if _OPENMP
 #include <omp.h>
@@ -172,6 +179,16 @@ Additional BSD Notice
 #include <cuda_profiler_api.h>
 #endif
 
+#ifdef LULESH_USE_SYCL_USM
+inline auto exec_policy = oneapi::dpl::execution::dpcpp_default;
+namespace algo = oneapi::dpl;
+#elif defined(LULESH_USE_PSTL_OFFLOAD)
+namespace algo = std;
+inline constexpr auto exec_policy = std::execution::par_unseq;
+#else // LULESH_USE_PARALLEL_EXECUTION
+inline auto exec_policy = oneapi::dpl::execution::par_unseq;
+namespace algo = oneapi::dpl;
+#endif // LULESH_USE_SYCL_USM
 
 /* Work Routines */
 
@@ -278,7 +295,7 @@ static inline void InitStressTermsForElems(Domain &domain, Real_t *sigxx,
   //
 
   Domain* domain_ptr = &domain;
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElem,
+  algo::for_each_n(exec_policy, counting_iterator(0), numElem,
                   [=](Index_t i) {
                     sigxx[i] = sigyy[i] = sigzz[i] = -domain_ptr->p(i) - domain_ptr->q(i);
                   });
@@ -497,8 +514,7 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
   // loop over all elements
 
   Domain* domain_ptr = &domain;
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), numElem,
+  algo::for_each_n(exec_policy, counting_iterator(0), numElem,
       [=](Index_t k) {
         const Index_t *const elemToNode = domain_ptr->nodelist(k);
         Real_t B[3][8]; // shape function derivatives
@@ -525,7 +541,7 @@ static inline void IntegrateStressForElems(Domain &domain, Real_t *sigxx,
 
   // If threaded, then we need to copy the data out of the temporary
   // arrays used above into the final forces field
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numNode,
+  algo::for_each_n(exec_policy, counting_iterator(0), numNode,
                   [=](Index_t gnode) {
                     Index_t count = domain_ptr->nodeElemCount(gnode);
                     Index_t *cornerList = domain_ptr->nodeElemCornerList(gnode);
@@ -709,8 +725,7 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
   /*    compute the hourglass modes */
 
   Domain* domain_ptr = &domain;
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), numElem,
+  algo::for_each_n(exec_policy, counting_iterator(0), numElem,
       [=](Index_t i2) {
         Real_t *fx_local, *fy_local, *fz_local;
         Real_t hgfx[8], hgfy[8], hgfz[8];
@@ -859,7 +874,7 @@ static inline void CalcFBHourglassForceForElems(Domain &domain, Real_t *determ,
       });
 
   // Collect the data from the local arrays into the final force arrays
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numNode,
+  algo::for_each_n(exec_policy, counting_iterator(0), numNode,
                   [=](Index_t gnode) {
                     Index_t count = domain_ptr->nodeElemCount(gnode);
                     Index_t *cornerList = domain_ptr->nodeElemCornerList(gnode);
@@ -1049,7 +1064,7 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
 
   Domain* domain_ptr = &domain;
   /* start loop over elements */
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElem,
+  algo::for_each_n(exec_policy, counting_iterator(0), numElem,
                   [=](Index_t i) {
                     Real_t x1[8], y1[8], z1[8];
                     Real_t pfx[8], pfy[8], pfz[8];
@@ -1074,7 +1089,7 @@ static inline void CalcHourglassControlForElems(Domain &domain, Real_t determ[],
 
                     determ[i] = domain_ptr->volo(i) * domain_ptr->v(i);
                   });
-  if (std::any_of(std::execution::par_unseq, domain_ptr->v_begin(), domain_ptr->v_end(),
+  if (algo::any_of(exec_policy, domain_ptr->v_begin(), domain_ptr->v_end(),
                   [](Real_t v) { return v < Real_t(0.0); })) {
     exit(VolumeError);
   }
@@ -1123,7 +1138,7 @@ static inline void CalcVolumeForceForElems(Domain &domain) {
                             domain.numNode());
 
     // check for negative element volume
-    if (std::any_of(std::execution::par_unseq, determ, determ + numElem,
+    if (algo::any_of(exec_policy, determ, determ + numElem,
                     [](Real_t value) { return value <= Real_t(0.0); })) {
       exit(VolumeError);
     }
@@ -1144,11 +1159,11 @@ static inline void CalcVolumeForceForElems(Domain &domain) {
 static inline void CalcForceForNodes(Domain &domain) {
   Index_t numNode = domain.numNode();
 
-  std::fill(std::execution::par_unseq, domain.fx_begin(), domain.fx_end(),
+  algo::fill(exec_policy, domain.fx_begin(), domain.fx_end(),
             Real_t(0.0));
-  std::fill(std::execution::par_unseq, domain.fy_begin(), domain.fy_end(),
+  algo::fill(exec_policy, domain.fy_begin(), domain.fy_end(),
             Real_t(0.0));
-  std::fill(std::execution::par_unseq, domain.fz_begin(), domain.fz_end(),
+  algo::fill(exec_policy, domain.fz_begin(), domain.fz_end(),
             Real_t(0.0));
 
   /* Calcforce calls partial, force, hourq */
@@ -1158,13 +1173,13 @@ static inline void CalcForceForNodes(Domain &domain) {
 /******************************************/
 
 static inline void CalcAccelerationForNodes(Domain &domain, Index_t numNode) {
-  std::transform(std::execution::par_unseq, domain.fx_begin(), domain.fx_end(),
+  algo::transform(exec_policy, domain.fx_begin(), domain.fx_end(),
                  domain.nodalMass_begin(), domain.xdd_begin(),
                  [](Real_t fx, Real_t nodalMass) { return fx / nodalMass; });
-  std::transform(std::execution::par_unseq, domain.fy_begin(), domain.fy_end(),
+  algo::transform(exec_policy, domain.fy_begin(), domain.fy_end(),
                  domain.nodalMass_begin(), domain.ydd_begin(),
                  [](Real_t fy, Real_t nodalMass) { return fy / nodalMass; });
-  std::transform(std::execution::par_unseq, domain.fz_begin(), domain.fz_end(),
+  algo::transform(exec_policy, domain.fz_begin(), domain.fz_end(),
                  domain.nodalMass_begin(), domain.zdd_begin(),
                  [](Real_t fz, Real_t nodalMass) { return fz / nodalMass; });
 }
@@ -1177,19 +1192,19 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
 
   Domain* domain_ptr = &domain;
   if (!domain.symmXempty()) {
-    std::for_each(std::execution::par_unseq, domain.symmX_begin(),
+    algo::for_each(exec_policy, domain.symmX_begin(),
                   domain.symmX_begin() + numNodeBC, [=](Index_t symmX) {
                     domain_ptr->xdd(symmX) = Real_t(0.0);
                   });
   }
   if (!domain.symmYempty()) {
-    std::for_each(std::execution::par_unseq, domain.symmY_begin(),
+    algo::for_each(exec_policy, domain.symmY_begin(),
                   domain.symmY_begin() + numNodeBC, [=](Index_t symmY) {
                     domain_ptr->ydd(symmY) = Real_t(0.0);
                   });
   }
   if (!domain.symmZempty()) {
-    std::for_each(std::execution::par_unseq, domain.symmZ_begin(),
+    algo::for_each(exec_policy, domain.symmZ_begin(),
                   domain.symmZ_begin() + numNodeBC, [=](Index_t symmZ) {
                     domain_ptr->zdd(symmZ) = Real_t(0.0);
                   });
@@ -1200,7 +1215,7 @@ static inline void ApplyAccelerationBoundaryConditionsForNodes(Domain &domain) {
 
 static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
                                         const Real_t u_cut, Index_t numNode) {
-  std::transform(std::execution::par_unseq, domain.xd_begin(), domain.xd_end(),
+  algo::transform(exec_policy, domain.xd_begin(), domain.xd_end(),
                  domain.xdd_begin(), domain.xd_begin(),
                  [=](Real_t xd, Real_t xdd) {
                    Real_t xdnew = xd + xdd * dt;
@@ -1208,7 +1223,7 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
                      xdnew = Real_t(0.0);
                    return xdnew;
                  });
-  std::transform(std::execution::par_unseq, domain.yd_begin(), domain.yd_end(),
+  algo::transform(exec_policy, domain.yd_begin(), domain.yd_end(),
                  domain.ydd_begin(), domain.yd_begin(),
                  [=](Real_t yd, Real_t ydd) {
                    Real_t ydnew = yd + ydd * dt;
@@ -1216,7 +1231,7 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
                      ydnew = Real_t(0.0);
                    return ydnew;
                  });
-  std::transform(std::execution::par_unseq, domain.zd_begin(), domain.zd_end(),
+  algo::transform(exec_policy, domain.zd_begin(), domain.zd_end(),
                  domain.zdd_begin(), domain.zd_begin(),
                  [=](Real_t zd, Real_t zdd) {
                    Real_t zdnew = zd + zdd * dt;
@@ -1230,13 +1245,13 @@ static inline void CalcVelocityForNodes(Domain &domain, const Real_t dt,
 
 static inline void CalcPositionForNodes(Domain &domain, const Real_t dt,
                                         Index_t numNode) {
-  std::transform(std::execution::par_unseq, domain.x_begin(), domain.x_end(),
+  algo::transform(exec_policy, domain.x_begin(), domain.x_end(),
                  domain.xd_begin(), domain.x_begin(),
                  [=](Real_t x, Real_t xd) { return x + xd * dt; });
-  std::transform(std::execution::par_unseq, domain.y_begin(), domain.y_end(),
+  algo::transform(exec_policy, domain.y_begin(), domain.y_end(),
                  domain.yd_begin(), domain.y_begin(),
                  [=](Real_t y, Real_t yd) { return y + yd * dt; });
-  std::transform(std::execution::par_unseq, domain.z_begin(), domain.z_end(),
+  algo::transform(exec_policy, domain.z_begin(), domain.z_end(),
                  domain.zd_begin(), domain.z_begin(),
                  [=](Real_t z, Real_t zd) { return z + zd * dt; });
 }
@@ -1466,8 +1481,7 @@ void CalcKinematicsForElems(Domain &domain, Real_t deltaTime, Index_t numElem) {
 
   Domain* domain_ptr = &domain;
   // loop over all elements
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), numElem,
+  algo::for_each_n(exec_policy, counting_iterator(0), numElem,
       [=](Index_t k) {
         Real_t B[3][8]; /** shape function derivatives */
         Real_t D[6];
@@ -1538,7 +1552,7 @@ static inline void CalcLagrangeElements(Domain &domain) {
 
     Domain* domain_ptr = &domain;
     // element loop to do some stuff not included in the elemlib function.
-    std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElem,
+    algo::for_each_n(exec_policy, counting_iterator(0), numElem,
                     [=](Index_t k) {
                       // calc strain rate and apply as constraint (only done in
                       // FB element)
@@ -1553,7 +1567,7 @@ static inline void CalcLagrangeElements(Domain &domain) {
                       domain_ptr->dzz(k) -= vdovthird;
                     });
     // See if any volumes are negative, and take appropriate action.
-    if (std::any_of(std::execution::par_unseq, domain.vnew_begin(), domain.vnew_end(),
+    if (algo::any_of(exec_policy, domain.vnew_begin(), domain.vnew_end(),
                     [](Real_t vnew) { return vnew <= Real_t(0.0); })) {
       exit(VolumeError);
     }
@@ -1569,8 +1583,7 @@ static inline void CalcMonotonicQGradientsForElems(Domain &domain) {
   Index_t numElem = domain.numElem();
 
   Domain* domain_ptr = &domain;
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), numElem, [=](Index_t i) {
+  algo::for_each_n(exec_policy, counting_iterator(0), numElem, [=](Index_t i) {
         const Real_t ptiny = Real_t(1.e-36);
         Real_t ax, ay, az;
         Real_t dxv, dyv, dzv;
@@ -1732,8 +1745,7 @@ static inline void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
   Real_t qqc_monoq = domain.qqc_monoq();
 
   Domain* domain_ptr = &domain;
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), domain.regElemSize(r),
+  algo::for_each_n(exec_policy, counting_iterator(0), domain.regElemSize(r),
       [=](Index_t i) {
         Index_t ielem = domain_ptr->regElemlist(r, i);
         Real_t qlin, qquad;
@@ -2007,14 +2019,13 @@ static inline void CalcPressureForElems(Real_t *p_new, Real_t *bvc,
                                         Real_t eosvmax, Index_t length,
                                         Index_t *regElemList) {
   constexpr Real_t cls = Real_t(2.0) / Real_t(3.0);
-  std::transform(std::execution::par_unseq, compression, compression + length, bvc,
+  algo::transform(exec_policy, compression, compression + length, bvc,
                  [=](Real_t compression_i) {
                    return cls * (compression_i + Real_t(1.0));
                  });
-  std::fill(std::execution::par_unseq, pbvc, pbvc + length, cls);
+  algo::fill(exec_policy, pbvc, pbvc + length, cls);
 
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+  algo::for_each_n(exec_policy, counting_iterator(0), length, [=](Index_t i) {
         Real_t newval = bvc[i] * e_old[i];
         if (std::fabs(newval) < p_cut || vnewc[regElemList[i]] >= eosvmax) {
           newval = Real_t(0.0);
@@ -2042,8 +2053,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   Real_t *pHalfStep = pHalfSteps_g[reg].get();
 #endif
 
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+  algo::for_each_n(exec_policy, counting_iterator(0), length, [=](Index_t i) {
         e_new[i] = e_old[i] - Real_t(0.5) * delvc[i] * (p_old[i] + q_old[i]) +
                    Real_t(0.5) * work[i];
 
@@ -2055,8 +2065,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   CalcPressureForElems(pHalfStep, bvc, pbvc, e_new, compHalfStep, vnewc, pmin,
                        p_cut, eosvmax, length, regElemList);
 
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+  algo::for_each_n(exec_policy, counting_iterator(0), length, [=](Index_t i) {
         Real_t vhalf = Real_t(1.) / (Real_t(1.) + compHalfStep[i]);
 
         if (delvc[i] > Real_t(0.)) {
@@ -2080,7 +2089,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
                                    Real_t(4.0) * (pHalfStep[i] + q_new[i]));
       });
 
-  std::transform(std::execution::par_unseq, e_new, e_new + length, work, e_new,
+  algo::transform(exec_policy, e_new, e_new + length, work, e_new,
                  [=](Real_t en, Real_t w) {
                    Real_t newval = en + Real_t(0.5) * w;
                    if (std::abs(newval) < e_cut) {
@@ -2095,8 +2104,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   CalcPressureForElems(p_new, bvc, pbvc, e_new, compression, vnewc, pmin, p_cut,
                        eosvmax, length, regElemList);
 
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+  algo::for_each_n(exec_policy, counting_iterator(0), length, [=](Index_t i) {
         const Real_t sixth = Real_t(1.0) / Real_t(6.0);
         Index_t ielem = regElemList[i];
         Real_t q_tilde;
@@ -2133,8 +2141,7 @@ CalcEnergyForElems(Real_t *p_new, Real_t *e_new, Real_t *q_new, Real_t *bvc,
   CalcPressureForElems(p_new, bvc, pbvc, e_new, compression, vnewc, pmin, p_cut,
                        eosvmax, length, regElemList);
 
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), length, [=](Index_t i) {
+  algo::for_each_n(exec_policy, counting_iterator(0), length, [=](Index_t i) {
         Index_t ielem = regElemList[i];
 
         if (delvc[i] <= Real_t(0.)) {
@@ -2170,8 +2177,7 @@ static inline void CalcSoundSpeedForElems(Domain &domain, Real_t *vnewc,
                                           Real_t *bvc, Real_t ss4o3,
                                           Index_t len, Index_t *regElemList) {
   Domain* domain_ptr = &domain;
-  std::for_each_n(
-      std::execution::par_unseq, counting_iterator(0), len, [=](Index_t i) {
+  algo::for_each_n(exec_policy, counting_iterator(0), len, [=](Index_t i) {
         Index_t ielem = regElemList[i];
         Real_t ssTmp = (pbvc[i] * enewc[i] +
                         vnewc[ielem] * vnewc[ielem] * bvc[i] * pnewc[i]) /
@@ -2240,7 +2246,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
   // loop to add load imbalance based on region number
   for (Int_t j = 0; j < rep; j++) {
     /* compress data, minimal set */
-    std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+    algo::for_each_n(exec_policy, counting_iterator(0), numElemReg,
                     [=](Index_t i) {
                       Index_t ielem = regElemList[i];
                       e_old[i] = domain_ptr->e(ielem);
@@ -2251,7 +2257,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                       ql_old[i] = domain_ptr->ql(ielem);
                     });
 
-    std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+    algo::for_each_n(exec_policy, counting_iterator(0), numElemReg,
                     [=](Index_t i) {
                       Index_t ielem = regElemList[i];
                       Real_t vchalf;
@@ -2262,7 +2268,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
 
     /* Check for v > eosvmax or v < eosvmin */
     if (eosvmin != Real_t(0.)) {
-      std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+      algo::for_each_n(exec_policy, counting_iterator(0), numElemReg,
                       [=](Index_t i) {
                         Index_t ielem = regElemList[i];
                         if (vnewc[ielem] <=
@@ -2272,7 +2278,7 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                       });
     }
     if (eosvmax != Real_t(0.)) {
-      std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+      algo::for_each_n(exec_policy, counting_iterator(0), numElemReg,
                       [=](Index_t i) {
                         Index_t ielem = regElemList[i];
                         if (vnewc[ielem] >=
@@ -2283,14 +2289,14 @@ static inline void EvalEOSForElems(Domain &domain, Real_t *vnewc,
                         }
                       });
     }
-    std::fill(std::execution::par_unseq, work, work + numElemReg, Real_t(0.0));
+    algo::fill(exec_policy, work, work + numElemReg, Real_t(0.0));
     CalcEnergyForElems(p_new, e_new, q_new, bvc, pbvc, p_old, e_old, q_old,
                        compression, compHalfStep, vnewc, work, delvc, pmin,
                        p_cut, e_cut, q_cut, emin, qq_old, ql_old, rho0, eosvmax,
                        numElemReg, regElemList, reg);
   }
 
-  std::for_each_n(std::execution::par_unseq, counting_iterator(0), numElemReg,
+  algo::for_each_n(exec_policy, counting_iterator(0), numElemReg,
                   [=](Index_t i) {
                     Index_t ielem = regElemList[i];
                     domain_ptr->p(ielem) = p_new[i];
@@ -2334,24 +2340,24 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
     Real_t *vnewc = vnewc_g.get();
 #endif
 
-    std::copy(std::execution::par_unseq, domain.vnew_begin(), domain.vnew_end(),
+    algo::copy(exec_policy, domain.vnew_begin(), domain.vnew_end(),
               vnewc);
 
     // Bound the updated relative volumes with eosvmin/max
     if (eosvmin != Real_t(0.)) {
-      std::transform(std::execution::par_unseq, vnewc, vnewc + numElem, vnewc,
+      algo::transform(exec_policy, vnewc, vnewc + numElem, vnewc,
                      [=](Real_t vc) { return vc < eosvmin ? eosvmin : vc; });
     }
 
     if (eosvmax != Real_t(0.)) {
-      std::transform(std::execution::par_unseq, vnewc, vnewc + numElem, vnewc,
+      algo::transform(exec_policy, vnewc, vnewc + numElem, vnewc,
                      [=](Real_t vc) { return vc > eosvmax ? eosvmax : vc; });
     }
 
     // This check may not make perfect sense in LULESH, but
     // it's representative of something in the full code -
     // just leave it in, please
-    if (std::any_of(std::execution::par_unseq, domain.v_begin(), domain.v_end(),
+    if (algo::any_of(exec_policy, domain.v_begin(), domain.v_end(),
                     [=](Real_t vc) {
                       if (eosvmin != Real_t(0.0) && vc < eosvmin) {
                         vc = eosvmin;
@@ -2391,7 +2397,7 @@ static inline void ApplyMaterialPropertiesForElems(Domain &domain) {
 
 static inline void UpdateVolumesForElems(Domain &domain, Real_t v_cut,
                                          Index_t length) {
-  std::transform(std::execution::par_unseq, domain.vnew_begin(), domain.vnew_end(),
+  algo::transform(exec_policy, domain.vnew_begin(), domain.vnew_end(),
                  domain.v_begin(), [v_cut](Real_t vnew) {
                    if (std::abs(vnew - Real_t(1.0)) < v_cut) {
                      vnew = Real_t(1.0);
@@ -2421,8 +2427,7 @@ static inline void CalcCourantConstraintForElems(Domain &domain, Index_t length,
                                                  Real_t &dtcourant) {
   Domain* domain_ptr = &domain;
   Real_t qqc2 = Real_t(64.0) * qqc * qqc;
-  dtcourant = std::transform_reduce(
-      std::execution::par_unseq, counting_iterator(0), counting_iterator(length),
+  dtcourant = algo::transform_reduce(exec_policy, counting_iterator(0), counting_iterator(length),
       dtcourant, [](Real_t a, Real_t b) { return a < b ? a : b; },
       [=](Index_t i) {
         Index_t indx = regElemlist[i];
@@ -2448,8 +2453,7 @@ static inline void CalcHydroConstraintForElems(Domain &domain, Index_t length,
                                                Real_t dvovmax,
                                                Real_t &dthydro) {
   Domain* domain_ptr = &domain;
-  dthydro = std::transform_reduce(
-      std::execution::par_unseq, counting_iterator(0), counting_iterator(length),
+  dthydro = algo::transform_reduce(exec_policy, counting_iterator(0), counting_iterator(length),
       dthydro, [](Real_t a, Real_t b) { return a < b ? a : b; },
       [=](Index_t i) {
         Index_t indx = regElemlist[i];
@@ -2528,22 +2532,22 @@ int main(int argc, char *argv[]) {
   ParseCommandLineOptions(argc, argv, myRank, &opts);
 
   if ((myRank == 0) && (opts.quiet == 0)) {
-    std::cout << "Running problem size " << opts.nx
-              << "^3 per domain until completion\n";
-    std::cout << "Num processors: " << numRanks << "\n";
-#if _OPENMP
-    std::cout << "Num threads: " << omp_get_max_threads() << "\n";
-#endif
-    std::cout << "Total number of elements: "
-              << ((Int8_t)numRanks * opts.nx * opts.nx * opts.nx) << " \n\n";
-    std::cout << "To run other sizes, use -s <integer>.\n";
-    std::cout << "To run a fixed number of iterations, use -i <integer>.\n";
-    std::cout
-        << "To run a more or less balanced region set, use -b <integer>.\n";
-    std::cout << "To change the relative costs of regions, use -c <integer>.\n";
-    std::cout << "To print out progress, use -p\n";
-    std::cout << "To write an output file for VisIt, use -v\n";
-    std::cout << "See help (-h) for more options\n\n";
+//     std::cout << "Running problem size " << opts.nx
+//               << "^3 per domain until completion\n";
+//     std::cout << "Num processors: " << numRanks << "\n";
+// #if _OPENMP
+//     std::cout << "Num threads: " << omp_get_max_threads() << "\n";
+// #endif
+//     std::cout << "Total number of elements: "
+//               << ((Int8_t)numRanks * opts.nx * opts.nx * opts.nx) << " \n\n";
+//     std::cout << "To run other sizes, use -s <integer>.\n";
+//     std::cout << "To run a fixed number of iterations, use -i <integer>.\n";
+//     std::cout
+//         << "To run a more or less balanced region set, use -b <integer>.\n";
+//     std::cout << "To change the relative costs of regions, use -c <integer>.\n";
+//     std::cout << "To print out progress, use -p\n";
+//     std::cout << "To write an output file for VisIt, use -v\n";
+//     std::cout << "See help (-h) for more options\n\n";
   }
 
   // Set up the mesh and decompose. Assumes regular cubes for now
